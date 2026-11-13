@@ -213,8 +213,14 @@ Same house rules as the rest of the fleet:
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+MIT for the code. Third-party components keep their own terms — see [`NOTICE.md`](NOTICE.md),
+which also explains the one MPL-2.0 dependency (Mediabunny) and what that requires of a fork.
 
-Built on PixiJS, GSAP, Tone.js, Zustand, Zod and mp4-muxer. Prior art that shaped the design:
-GSAP's timeline model, Theatre.js's sequencing ideas, anime.js's SVG morphing, and the
-WebCodecs export recipes now common in browser video tooling.
+## What it is built on
+
+PixiJS (renderer), Tone.js (live score), Mediabunny (muxing and encoding), React, Zustand and
+Zod. Every one is listed with its licence in [`NOTICE.md`](NOTICE.md).
+
+Prior art that shaped the design, none of it bundled: GSAP's timeline model, Theatre.js's
+sequencing ideas, anime.js's SVG morphing, and the WebCodecs export recipes now common in browser
+video tooling.

@@ -54,16 +54,20 @@
       "sha256": "bcb851e67f7759779d6e041d43f039fb1c0e45dd3c12671b0009fde9e0c1a61b",
       "class": "hand"
     },
+    "NOTICE.md": {
+      "sha256": "5de4dbcb391d49123f1d43fc746d4f862325f5340faad85d51e6d7b87d04deac",
+      "class": "hand"
+    },
     "PAGES.json": {
       "sha256": "b45364b7eb8d7bebcb82de5beeebbcef8222b34d31dce7d70a503260b1d445f3",
       "class": "hand"
     },
     "PRIVACY.md": {
-      "sha256": "b40c61fe5e4084a3b86316d5a46b89c80c000f35561a66668d1cdd936e25b715",
+      "sha256": "b9503e23e40ca25c89a5250495402cea9a3410ba738bc94abc1b77aec7032af9",
       "class": "hand"
     },
     "README.md": {
-      "sha256": "2c8fedb4f4dc071ce2f6874026e6c9726e1b428c8ca70de61178764aba2c586b",
+      "sha256": "5ba2ef480cfe64aed3cb027c8254f884e858244e60ed57ef0e7bb7b6c3a35503",
       "class": "hand"
     },
     "SECURITY.md": {
