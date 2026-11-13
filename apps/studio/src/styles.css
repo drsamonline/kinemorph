@@ -194,6 +194,13 @@ button { cursor: pointer; }
   letter-spacing: 0;
 }
 .modal-card footer { display: flex; gap: 10px; margin-top: 22px; align-items: center; }
+/* the primary action sat below the fold on a 900px window: pin it to the
+   bottom of the scrolling card so "Generate" is always reachable */
+.modal-card.wizard footer {
+  position: sticky; bottom: -24px; margin: 22px -24px -24px;
+  padding: 14px 24px; background: var(--panel);
+  border-top: 1px solid var(--line);
+}
 .hint { color: #5d6880; font-size: 11.5px; margin-top: 14px; line-height: 1.6; }
 
 .style-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }

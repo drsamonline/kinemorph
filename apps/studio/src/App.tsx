@@ -497,7 +497,13 @@ function Inspector({
       </label>
 
       <label className="field">
-        Accent <span className={`contrast ${contrast >= 3 ? 'ok' : 'low'}`}>{contrast.toFixed(1)}:1</span>
+        Accent{' '}
+        <span
+          className={`contrast ${contrast >= 3 ? 'ok' : 'low'}`}
+          title="Contrast against the background. Below 3:1 the artwork is hard to see."
+        >
+          {contrast.toFixed(1)}:1
+        </span>
         <input type="color" value={scene.accent} onChange={(e) => onChange({ accent: e.target.value })} />
       </label>
 

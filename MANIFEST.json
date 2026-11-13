@@ -91,7 +91,7 @@
       "class": "source"
     },
     "apps/studio/src/App.tsx": {
-      "sha256": "14bc8e639c97e5332f7a19c332eb35c720f3cd65a42c56d7f830ece7b843d322",
+      "sha256": "736223d346b469f9442e9000c4df4fac98f80ba00401ed625a90384420b4385a",
       "class": "source"
     },
     "apps/studio/src/ErrorBoundary.tsx": {
@@ -123,7 +123,7 @@
       "class": "source"
     },
     "apps/studio/src/styles.css": {
-      "sha256": "ca6f5fa3206afa6fc9c258f64bcbc05b2e385a1e7b7ba2524f5cd89afeb55d06",
+      "sha256": "cfc1aec1d226702362ba9bf4c6cdedfd85569109dfb5c11c1cb1e3dba79bf6a4",
       "class": "source"
     },
     "apps/studio/vite.config.ts": {
@@ -290,12 +290,12 @@
       "sha256": "c2d06c76ae8153f2928c560129ee26ec33bda836fe5367e314b89b5fef2f1c4e",
       "class": "generated"
     },
-    "studio/assets/main-QbGBV1cJ.js": {
-      "sha256": "5d851f8c5f6d2444a9508a84587bf57de2c0e686de2c0b484916ecdfd05d6832",
+    "studio/assets/main-B07ffU2m.js": {
+      "sha256": "4a5f8c2017667db1aeefbde603f23c1cc0e17440c654610ed9e5a38bb013e3ea",
       "class": "generated"
     },
-    "studio/assets/main-efOIi7On.css": {
-      "sha256": "54388feca7d98b1a7cde4b3861988d4d980efcf9e9f7d8a1b3e2b331297df766",
+    "studio/assets/main-jDADYJ00.css": {
+      "sha256": "5508fd2af3c7e6decac929c99d314b5266f44d4ee6240ea451fb012207bc07a7",
       "class": "generated"
     },
     "studio/assets/selftest-DWdB6z3c.js": {
@@ -319,7 +319,7 @@
       "class": "generated"
     },
     "studio/index.html": {
-      "sha256": "973126d9b5302b8a311c2c189eb05faf6f3f0357dc8a272c76f9cf543df33fcf",
+      "sha256": "f7cfb764d71259b18316832a1211d144347d26114478bac5f99f876a4ace157e",
       "class": "generated"
     },
     "studio/selftest.html": {
