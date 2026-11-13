@@ -55,7 +55,7 @@
       "class": "hand"
     },
     "CONTRIBUTING.md": {
-      "sha256": "daf16560106ba907714bf38e2acd96203838d60d826a3c8735e4da482b37d890",
+      "sha256": "b3ec0cd9b8f8d41ddba49a148a780e06d5aecffe0e6b192fb8462f88d6caf6b7",
       "class": "hand"
     },
     "LICENSE": {
@@ -187,7 +187,7 @@
       "class": "hand"
     },
     "package.json": {
-      "sha256": "183668bbf7ca7cbc54e46781a346adfb1e581b9ebd8b8ef5677d7dfcd164f722",
+      "sha256": "5b4f646808b4d3a43eba781a270193b23f209f03fe21dee1e735fd0dbccf3818",
       "class": "hand"
     },
     "packages/audio/package.json": {
@@ -376,6 +376,10 @@
     },
     "tools/check-links.mjs": {
       "sha256": "3c0d7cec71746a3d42866e824b6fc9cd6b6723030171e97e1adbf8c596f14a2f",
+      "class": "tooling"
+    },
+    "tools/check-version.mjs": {
+      "sha256": "89621492b3c73ccb210c54f4fb2b4c34dc7076359e282f6b17876375e14272a9",
       "class": "tooling"
     },
     "tools/manifest.mjs": {

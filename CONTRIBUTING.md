@@ -49,6 +49,19 @@ Same house rules as the rest of the fleet:
 | `.github/dependabot.yml` | Weekly, one grouped PR per ecosystem; majors are ignored on purpose. |
 | `SECURITY.md` · `PRIVACY.md` · `CODE_OF_CONDUCT.md` · `CITATION.cff` | The same set every repo in the fleet carries. |
 
+## Guards against the bugs we actually had
+
+Two checks exist because the project shipped these mistakes once.
+
+| Check | Catches |
+|---|---|
+| `node tools/check-version.mjs` (in CI) | A version shipping while the changelog still stops at the previous one — which happened twice |
+| `node tools/release-notes.mjs <v>` | Tagging a release the changelog never recorded; it exits non-zero |
+
+Kinemotif also carries `tools/render-check.mjs`, which renders every text effect and asserts the
+frame is not blank — the guard for an exception inside the draw loop, which otherwise produces a
+silent empty canvas. Kinemorph's equivalent is the 140-frame signature suite.
+
 ## Commits
 
 Conventional Commits: `type(scope): imperative subject` under 72 characters, body explaining why.
