@@ -35,6 +35,20 @@ npm run dev          # http://localhost:5173
    rely on hoisting.
 5. **Nothing in the boot path that only play or export needs.** That budget is in the README.
 
+## Repository conventions
+
+Same house rules as the rest of the fleet:
+
+| File | Purpose |
+|---|---|
+| `PAGES.json` | Declares every published page and its source file. |
+| `tools/check-links.mjs` | Fails if a local reference is broken or the build is missing. |
+| `.github/workflows/ci.yml` | `npm ci` → typecheck → build → link check → verifies the committed build matches the sources. |
+| `studio/` | Build output, committed on purpose so Pages can serve it from the branch. |
+| `MANIFEST.json` | Inventory of every tracked file with a SHA-256 and a class. `tools/manifest.mjs --check` fails on unlisted or missing files. |
+| `.github/dependabot.yml` | Weekly, one grouped PR per ecosystem; majors are ignored on purpose. |
+| `SECURITY.md` · `PRIVACY.md` · `CODE_OF_CONDUCT.md` · `CITATION.cff` | The same set every repo in the fleet carries. |
+
 ## Commits
 
 Conventional Commits: `type(scope): imperative subject` under 72 characters, body explaining why.
