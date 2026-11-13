@@ -19,7 +19,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        selftest: fileURLToPath(new URL('./selftest.html', import.meta.url))
+        selftest: fileURLToPath(new URL('./selftest.html', import.meta.url)),
+        harness: fileURLToPath(new URL('./harness.html', import.meta.url))
       }
     },
     outDir: '../../studio',

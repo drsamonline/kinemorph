@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0] — 2026-11-13
+
+### Added
+- **Playwright suite** — three specs run against the built site through `vite preview`:
+  the engine self-test, 84 golden style × motif frames, and an editor smoke test.
+- **`studio/harness.html`** — render harness that draws every style × motif and publishes a
+  coarse colour signature on `window.__HARNESS__`.
+- **`tests/signatures.json`** — committed reference signatures, with `npm run test:update`.
+- **Worker-based export** — encoding and muxing now run in a dedicated worker; frames cross the
+  boundary as transferable `ImageBitmap`s, so the editor keeps painting during a long export.
+  Falls back to the main thread when a worker cannot start.
+- **CI** — installs Chromium, runs the suite, uploads the Playwright report as an artefact.
+
+### Changed
+- `SceneRenderer.init()` takes `preserveDrawingBuffer`, used only by the harness.
+- `exportMP4()` picks the worker path automatically and keeps the main-thread implementation as
+  a fallback.
+
 ## [0.2.0] — 2026-11-13
 
 ### Added

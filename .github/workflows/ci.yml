@@ -35,6 +35,22 @@ jobs:
       - name: Manifest is complete
         run: node tools/manifest.mjs --check
 
+      - name: Install a browser for the tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests
+        run: npm test
+
+      - name: Upload the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
       - name: The committed build is up to date
         run: |
           if [ -n "$(git status --porcelain studio)" ]; then

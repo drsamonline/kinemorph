@@ -3,15 +3,21 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "npm run dev -w @kinemorph/studio",
     "build": "npm run build -w @kinemorph/studio",
     "preview": "npm run preview -w @kinemorph/studio",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "check": "node tools/check-links.mjs"
+    "check": "node tools/check-links.mjs",
+    "test": "playwright test",
+    "test:update": "UPDATE_SIGNATURES=1 playwright test signatures"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "typescript": "^5.6.3"
   }
 }

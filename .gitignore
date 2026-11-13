@@ -2,3 +2,5 @@ node_modules/
 *.local
 .DS_Store
 dist/
+test-results/
+playwright-report/

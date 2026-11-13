@@ -84,25 +84,35 @@ Undo, redo and — later — collaboration all fall out of the same structure.
 
 ## Testing
 
-`studio/selftest.html` runs 19 assertions against the pure engine — motif geometry, morph
-endpoints, timeline tiling, transition windows, story determinism, command validation, WCAG
-contrast maths, accent legibility across every style, score ordering and determinism, and the
-offline mixdown length and peak. It needs no framework and no network, and it publishes its
-results on `window.__SELFTEST__` so a headless run can assert on them.
-
-```
-/studio/selftest.html        # in the dev server or the built site
+```bash
+npm test                 # Playwright against the built studio
+npm run test:update      # regenerate the golden signatures after a visual change
 ```
 
-There is no headless test runner in CI yet; the self-test is a page you open. Adding a
-Playwright pass over it is the obvious next step.
+| Suite | What it proves |
+|---|---|
+| `tests/selftest.spec.ts` | The 19 pure-engine assertions in `studio/selftest.html` pass in the built bundle, with no page errors. |
+| `tests/signatures.spec.ts` | All **84** style × motif combinations render. Each frame is reduced to an 8×5 colour signature (mean RGB + non-blank ratio) and compared against `tests/signatures.json`. Tolerance is 16 per channel, so anti-aliasing and driver differences pass while a blank frame, a thrown exception or a palette drift fails. |
+| `tests/studio.spec.ts` | The editor boots, the wizard generates a show, styles resize the canvas, editing renames a scene and `Ctrl+Z` undoes it. |
+
+`studio/harness.html` is the render harness the golden test drives. It renders with
+`preserveDrawingBuffer` so the frame can be read back — a harness-only cost, not a production one.
+
+Playwright runs the *built* site through `vite preview`, so the tests exercise exactly what ships.
+Locally, `CHROME_PATH=/usr/bin/chromium npm test` skips the browser download.
+
+The signatures were generated on Chromium + SwiftShader. On a machine with a hardware GPU the
+colours may land a few units away; if a run fails on colour drift alone, regenerate with
+`npm run test:update` and commit the result.
 
 ## Known limitations
 
 - **MP4 audio is AAC where available, Opus otherwise.** Opus-in-MP4 plays in browsers and VLC;
   some desktop editors ignore it. See the [guide](docs/guide.md#about-the-audio-codec).
-- **Export is CPU-bound.** Rendering is done on the main thread; a long show at 60 fps takes a
-  while. A worker + OffscreenCanvas path is the obvious next step.
+- **Rendering is still on the main thread.** Encoding and muxing now run in a worker (frames
+  cross as transferable `ImageBitmap`s), so the editor stays responsive during an export, but the
+  WebGL render for each frame still happens on the main thread. Moving the whole renderer into a
+  worker with `OffscreenCanvas` is the next step.
 - **Collaboration is not implemented.** The command layer is designed for it, but there is no
   transport.
 - **Glitch transition is an approximation**, not a slice-based tear.

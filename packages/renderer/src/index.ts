@@ -34,6 +34,8 @@ interface TextBlock {
 export interface RendererOptions {
   antialias?: boolean;
   backgroundAlpha?: number;
+  /** Keep the drawing buffer readable. Used by the golden-frame harness only. */
+  preserveDrawingBuffer?: boolean;
 }
 
 export class SceneRenderer {
@@ -53,6 +55,7 @@ export class SceneRenderer {
       backgroundAlpha: options.backgroundAlpha ?? 1,
       backgroundColor: hex(this.style.palette.bg),
       antialias: options.antialias ?? this.style.smooth,
+      preserveDrawingBuffer: options.preserveDrawingBuffer ?? false,
       preference: 'webgl',
       autoDensity: false,
       resolution: 1,

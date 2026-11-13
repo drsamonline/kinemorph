@@ -71,7 +71,7 @@ async function firstSupportedAudioConfig(sampleRate: number) {
   return null;
 }
 
-export async function exportMP4(options: ExportOptions): Promise<ExportResult> {
+async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResult> {
   const { renderer, project } = options;
   const fps = options.fps ?? 30;
   const width = options.width ?? 1280;
@@ -226,6 +226,157 @@ async function encodeAudio(
   encoder.close();
   if (failure) throw failure;
   return true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Worker-driven export                                                */
+/* ------------------------------------------------------------------ */
+
+interface WorkerHandle {
+  worker: Worker;
+  inflight: number;
+  waiters: (() => void)[];
+}
+
+/**
+ * Same frame loop, but the encode and the mux happen off the main thread.
+ * Frames cross the boundary as transferable ImageBitmaps.
+ */
+async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> {
+  const { renderer, project } = options;
+  const fps = options.fps ?? 30;
+  const width = options.width ?? 1280;
+  const height = options.height ?? 720;
+  const bitrate = options.bitrate ?? 6_000_000;
+  const duration = totalDuration(project);
+  const style = STYLES[project.style];
+
+  const videoConfig = await firstSupportedVideoConfig(width, height, bitrate, fps);
+  if (!videoConfig) throw new ExportUnsupportedError('No supported video codec was found for MP4 export.');
+
+  const audioBuffer = options.audio ?? null;
+  const audioConfig = audioBuffer ? await firstSupportedAudioConfig(audioBuffer.sampleRate) : null;
+
+  let worker: Worker;
+  try {
+    worker = new Worker(new URL('./encode-worker.ts', import.meta.url), { type: 'module' });
+  } catch (err) {
+    throw new ExportUnsupportedError('This browser could not start the encoding worker.');
+  }
+
+  const handle: WorkerHandle = { worker, inflight: 0, waiters: [] };
+  let settled = false;
+
+  const done = new Promise<{ buffer: ArrayBuffer; hasAudio: boolean }>((resolve, reject) => {
+    worker.onmessage = (event: MessageEvent) => {
+      const message = event.data as
+        | { type: 'progress'; phase: 'video' | 'audio' | 'muxing'; value: number }
+        | { type: 'done'; buffer: ArrayBuffer; hasAudio: boolean }
+        | { type: 'error'; message: string };
+
+      if (message.type === 'progress') {
+        if (message.phase === 'video') options.onProgress?.('video', message.value / Math.max(1, Math.round(duration * fps)));
+        else options.onProgress?.(message.phase, message.value);
+        return;
+      }
+      if (message.type === 'done') {
+        settled = true;
+        resolve({ buffer: message.buffer, hasAudio: message.hasAudio });
+        return;
+      }
+      settled = true;
+      reject(new Error(message.message));
+    };
+    worker.onerror = (event) => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(event.message || 'the encoding worker failed'));
+    };
+  });
+
+  worker.postMessage({
+    type: 'init',
+    video: {
+      codec: videoConfig.codec,
+      muxCodec: videoConfig.codec.startsWith('avc1') ? 'avc' : 'vp9',
+      width,
+      height,
+      bitrate,
+      fps
+    },
+    audio: audioBuffer && audioConfig
+      ? { codec: audioConfig.config, muxCodec: audioConfig.muxCodec, sampleRate: audioBuffer.sampleRate }
+      : null
+  });
+
+  const surface = document.createElement('canvas');
+  surface.width = width;
+  surface.height = height;
+  const ctx = surface.getContext('2d', { alpha: false });
+  if (!ctx) throw new ExportUnsupportedError('Could not create an export surface.');
+  ctx.imageSmoothingEnabled = !!style?.smooth;
+  ctx.imageSmoothingQuality = 'high';
+
+  const totalFrames = Math.max(1, Math.round(duration * fps));
+  try {
+    for (let i = 0; i < totalFrames; i++) {
+      renderer.render(project, i / fps);
+      ctx.drawImage(renderer.canvas, 0, 0, width, height);
+      const bitmap = await createImageBitmap(surface);
+      handle.inflight++;
+      worker.postMessage(
+        { type: 'frame', bitmap, timestamp: Math.round((i * 1e6) / fps), keyFrame: i % (fps * 2) === 0 },
+        [bitmap]
+      );
+      /* keep at most four frames in flight so memory stays flat */
+      if (handle.inflight > 4) await new Promise((resolve) => setTimeout(resolve, 0));
+      handle.inflight = 0;
+      if (i % 4 === 0) options.onProgress?.('video', i / totalFrames);
+    }
+
+    if (audioBuffer) {
+      const left = audioBuffer.getChannelData(0).slice();
+      const right = (audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : audioBuffer.getChannelData(0)).slice();
+      worker.postMessage({ type: 'audio', left, right, sampleRate: audioBuffer.sampleRate }, [left.buffer, right.buffer]);
+    }
+
+    worker.postMessage({ type: 'finish' });
+    const result = await done;
+    worker.terminate();
+
+    return {
+      blob: new Blob([result.buffer], { type: 'video/mp4' }),
+      filename: `${slug(project.title)}.mp4`,
+      width,
+      height,
+      duration,
+      fps,
+      hasAudio: result.hasAudio,
+      codec: videoConfig.codec
+    };
+  } finally {
+    worker.terminate();
+  }
+}
+
+/**
+ * Public entry point. Uses the worker when the browser can run one, and falls
+ * back to encoding on the main thread when it cannot. A failure *after* the
+ * worker has started is not retried — that would render every frame twice.
+ */
+export async function exportMP4(options: ExportOptions & { mainThread?: boolean }): Promise<ExportResult> {
+  if (typeof VideoEncoder === 'undefined') {
+    throw new ExportUnsupportedError('This browser has no WebCodecs video encoder. Use the WebM recorder instead.');
+  }
+  if (!options.mainThread && typeof Worker !== 'undefined') {
+    try {
+      return await exportMP4InWorker(options);
+    } catch (err) {
+      if (!(err instanceof ExportUnsupportedError)) throw err;
+      /* the worker could not be started at all — the main thread will do */
+    }
+  }
+  return exportMP4OnMainThread(options);
 }
 
 /* ------------------------------------------------------------------ */
