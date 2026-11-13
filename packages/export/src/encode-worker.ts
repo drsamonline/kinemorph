@@ -1,5 +1,5 @@
 import {
-  AudioSample, AudioSampleSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality
+  AudioSample, AudioSampleSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality, WebMOutputFormat
 } from 'mediabunny';
 
 /**
@@ -15,6 +15,7 @@ import {
  */
 
 export interface WorkerConfig {
+  container: 'mp4' | 'webm';
   width: number;
   height: number;
   fps: number;
@@ -61,7 +62,10 @@ async function handle(message: InMessage): Promise<void> {
     surfaceCtx.imageSmoothingEnabled = true;
     surfaceCtx.imageSmoothingQuality = 'high';
 
-    output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+    output = new Output({
+      format: config.container === 'webm' ? new WebMOutputFormat() : new Mp4OutputFormat(),
+      target: new BufferTarget()
+    });
     videoSource = new CanvasSource(surface, {
       codec: config.videoCodec,
       quality: new Quality({ bitrate: config.bitrate })

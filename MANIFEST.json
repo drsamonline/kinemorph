@@ -39,7 +39,7 @@
       "class": "hand"
     },
     "CHANGELOG.md": {
-      "sha256": "5f7b719568d146200955af1b26585902b7064ab8c599358ad10ad68d84c02154",
+      "sha256": "0e44b9f79dcd7bca64996a6cd9bb5c5da7515be7d466555a89c00c9bc0922458",
       "class": "hand"
     },
     "CITATION.cff": {
@@ -63,7 +63,7 @@
       "class": "hand"
     },
     "README.md": {
-      "sha256": "338c8209e232ec7b3c377bec96c4b3f3e2d10608acb639ac2a9e6a61ebacc228",
+      "sha256": "7a51a3115aef91b321a38ae6a63f4bc2a238b3b0df1390476b8abf8fec148d79",
       "class": "hand"
     },
     "SECURITY.md": {
@@ -95,7 +95,7 @@
       "class": "source"
     },
     "apps/studio/src/ExportPanel.tsx": {
-      "sha256": "0b531b43a9adb13009c084c08fe38148e3eb1d91b556341fdfb308e868c8a7e0",
+      "sha256": "02c6f69f1bd85bd2b615d4a048b5e79331e1451d3bf9c58a10004ffef4b78517",
       "class": "source"
     },
     "apps/studio/src/Stage.tsx": {
@@ -143,7 +143,7 @@
       "class": "asset"
     },
     "docs/guide.md": {
-      "sha256": "c512a45dbc1cb0b19d037f4727b3deccd4e7071fc3e276fec6ef72def9a29cd1",
+      "sha256": "d9f83aa7e4ba3641f43a0763c68f532bcdb4e4c6c49479df0dc1b0ac98e99530",
       "class": "hand"
     },
     "favicon.svg": {
@@ -159,11 +159,11 @@
       "class": "hand"
     },
     "package-lock.json": {
-      "sha256": "28c49b8257f46c85c76e979fabecf17f39a20169a2af0e205c775ff2e73825a8",
+      "sha256": "00cc1dab4858eef7296681b7ad8163c6e4d3f0a2d66ecaad9700f6eb79859d35",
       "class": "hand"
     },
     "package.json": {
-      "sha256": "c15df51abeea5730185a331589597e2b0ee8d3464f48170922dd267c15b0c592",
+      "sha256": "183668bbf7ca7cbc54e46781a346adfb1e581b9ebd8b8ef5677d7dfcd164f722",
       "class": "hand"
     },
     "packages/audio/package.json": {
@@ -219,11 +219,11 @@
       "class": "source"
     },
     "packages/export/src/encode-worker.ts": {
-      "sha256": "3da62f00254ca1fd640ff14c9c3e6f2422bea32a839ada6883c16b5f49fd5195",
+      "sha256": "7c9c7858a0ac49f73315f743b18c14e04ad43c6ab48ee49bda761a2c01b869ff",
       "class": "source"
     },
     "packages/export/src/index.ts": {
-      "sha256": "aa79bdfbd595de1772f36ab4af34371efe3c8892dff02722fb6048d1c5c31fb9",
+      "sha256": "12117d9a3d7cfe80984cb9a205e718163259be4a60418a8dd6721d57e9d084a0",
       "class": "source"
     },
     "packages/renderer/package.json": {
@@ -266,8 +266,8 @@
       "sha256": "2ee9bc6d81a4d0c2e69923cfefaf22877cb2949b068cd67b5f50e031b8a7accb",
       "class": "generated"
     },
-    "studio/assets/encode-worker-Do64WVcK.js": {
-      "sha256": "d52bf9b33d9ddb451cf344bbbb028b0d50a4071a50374d4a2fad36536f94189c",
+    "studio/assets/encode-worker-DlEJKUZa.js": {
+      "sha256": "fed6ff633a04adda7af24a3f568260acaf2346c1ae55845f86573cc284488100",
       "class": "generated"
     },
     "studio/assets/getTexelRangeRects-Dsk6N1_g.js": {
@@ -286,12 +286,12 @@
       "sha256": "c2d06c76ae8153f2928c560129ee26ec33bda836fe5367e314b89b5fef2f1c4e",
       "class": "generated"
     },
-    "studio/assets/main-CNXfP8o5.js": {
-      "sha256": "2d6d90ae69e3dca063581d67d50cfabb7e89052cf27fdb8eeb407c5026a2ca40",
-      "class": "generated"
-    },
     "studio/assets/main-DssIerY2.css": {
       "sha256": "974df71294b1a2e48ba24e4aa3dc4eaa66d6e6da37f1020de2ade84b1db3d473",
+      "class": "generated"
+    },
+    "studio/assets/main-ehVFaxnE.js": {
+      "sha256": "1fac760f8c9820eba98319a6510245ad80ef3792bc00662f43a241c0cb853886",
       "class": "generated"
     },
     "studio/assets/selftest-qFDWI7ey.js": {
@@ -315,7 +315,7 @@
       "class": "generated"
     },
     "studio/index.html": {
-      "sha256": "ef659ee87bb133b7728c9823553a902395846ac16430d50ca788c4645f55e381",
+      "sha256": "f110f9a2db785e71249464a2e8a80e6ac2d07c2aad7f4343dde4a46a7330d8bb",
       "class": "generated"
     },
     "studio/selftest.html": {
@@ -344,6 +344,10 @@
     },
     "tools/manifest.mjs": {
       "sha256": "7f2e56d774341ff9475c6ecd57cb370a9efc0739384334c0fe53d0652bffd401",
+      "class": "tooling"
+    },
+    "tools/verify-export.mjs": {
+      "sha256": "889de88db23f40fbb7b533a1ef13b667913d9129e476108f47125177616568c7",
       "class": "tooling"
     },
     "tsconfig.base.json": {

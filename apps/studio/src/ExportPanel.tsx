@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { totalDuration, type Project } from '@kinemorph/core';
 import type { SceneRenderer } from '@kinemorph/renderer';
 import { renderScoreOffline } from '@kinemorph/audio';
-import { ExportUnsupportedError, downloadBlob, exportMP4, recordWebM } from '@kinemorph/export';
+import {
+  ExportUnsupportedError, downloadBlob, encodeWav, exportMP4, recordWebM, wavFilename
+} from '@kinemorph/export';
 
 type Phase = 'idle' | 'audio' | 'video' | 'muxing' | 'done' | 'error';
 
@@ -13,6 +15,7 @@ export function ExportPanel({
   project: Project;
   onClose: () => void;
 }) {
+  const [container, setContainer] = useState<'mp4' | 'webm'>('mp4');
   const [fps, setFps] = useState(30);
   const [resolution, setResolution] = useState<'720' | '1080'>('720');
   const [withAudio, setWithAudio] = useState(true);
@@ -21,14 +24,34 @@ export function ExportPanel({
   const [message, setMessage] = useState('');
   const duration = totalDuration(project);
 
-  const run = async (mode: 'mp4' | 'webm') => {
+  const downloadStems = async () => {
+    setPhase('audio');
+    setProgress(0);
+    setMessage('');
+    try {
+      const audio = await renderScoreOffline(project.mood, duration);
+      if (!audio) {
+        setPhase('error');
+        setMessage('This show has no score — the mood is Silent.');
+        return;
+      }
+      downloadBlob(encodeWav(audio), wavFilename(project));
+      setPhase('done');
+      setMessage(`${wavFilename(project)} — 16-bit PCM, ${(audio.sampleRate / 1000).toFixed(1)} kHz`);
+    } catch (err) {
+      setPhase('error');
+      setMessage(err instanceof Error ? err.message : 'Could not render the score');
+    }
+  };
+
+  const run = async (mode: 'mp4' | 'webm' | 'record') => {
     setPhase('audio');
     setProgress(0);
     setMessage('');
     try {
       const audio = withAudio ? await renderScoreOffline(project.mood, duration) : null;
 
-      if (mode === 'webm') {
+      if (mode === 'record') {
         const result = await recordWebM({
           renderer,
           project,
@@ -45,6 +68,7 @@ export function ExportPanel({
       const result = await exportMP4({
         renderer,
         project,
+        container,
         fps,
         width: Math.round((height * 16) / 9),
         height,
@@ -58,7 +82,10 @@ export function ExportPanel({
       setPhase('done');
       setMessage(
         `${result.filename} — ${(result.blob.size / 1e6).toFixed(1)} MB, ${result.width}x${result.height}, ` +
-        `${result.hasAudio ? `with ${result.audioCodec ?? 'audio'} audio` : 'silent — ' + (result.audioError ?? 'unknown reason')}`
+        `${result.codec}` +
+        (result.hasAudio
+          ? ` + ${result.audioCodec ?? 'audio'}`
+          : ` — silent: ${result.audioError ?? 'unknown reason'}`)
       );
     } catch (err) {
       setPhase('error');
@@ -80,6 +107,12 @@ export function ExportPanel({
         </header>
 
         <div className="row three">
+          <label className="field">Format
+            <select value={container} onChange={(e) => setContainer(e.target.value as 'mp4' | 'webm')} disabled={busy}>
+              <option value="mp4">MP4</option>
+              <option value="webm">WebM</option>
+            </select>
+          </label>
           <label className="field">Frame rate
             <select value={fps} onChange={(e) => setFps(Number(e.target.value))} disabled={busy}>
               <option value={24}>24 fps</option>
@@ -111,13 +144,18 @@ export function ExportPanel({
         {message && <p className={`result ${phase}`}>{message}</p>}
 
         <footer>
-          <button className="primary" onClick={() => run('mp4')} disabled={busy}>Export MP4</button>
-          <button className="ghost" onClick={() => run('webm')} disabled={busy}>Record WebM</button>
+          <button className="primary" onClick={() => run('mp4')} disabled={busy}>
+            Export {container.toUpperCase()}
+          </button>
+          <button className="ghost" onClick={downloadStems} disabled={busy}>Download WAV</button>
+          <button className="ghost" onClick={() => run('record')} disabled={busy}>Record (real time)</button>
           <button className="ghost" onClick={onClose} disabled={busy}>Close</button>
         </footer>
         <p className="hint">
-          MP4 uses WebCodecs and encodes every frame exactly; WebM records the canvas in real time and
-          works in browsers without a video encoder.
+          The main export renders every frame exactly. <strong>Download WAV</strong> gives you the score as
+          16-bit PCM — the reliable way to get audio into a desktop editor, since some of them ignore
+          Opus inside MP4. <strong>Record</strong> is the real-time fallback for browsers without a
+          video encoder.
         </p>
       </div>
     </div>

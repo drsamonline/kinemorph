@@ -107,8 +107,14 @@ encodes it, then mixes the score through an `OfflineAudioContext` and muxes ever
 one MP4. Nothing is captured in real time, so a busy tab cannot drop a frame. It is
 CPU-heavy: software rendering can take a couple of minutes for a short show.
 
-**Record WebM** captures the canvas in real time. Slower to watch, lower quality, but it works
-in browsers without a video encoder, and it still carries the soundtrack.
+**Format** switches between MP4 (H.264) and WebM (VP9). Both are rendered frame by frame; neither
+is a screen recording. WebM files are usually smaller.
+
+**Download WAV** renders the score as 16-bit PCM and nothing else. Use it when a desktop editor
+will not read the audio out of the MP4 — WAV is the one format nothing refuses.
+
+**Record (real time)** captures the canvas as it plays. Lower quality and slower to watch, but it
+works in browsers without a video encoder.
 
 ### About the audio codec
 

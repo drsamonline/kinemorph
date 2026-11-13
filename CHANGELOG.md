@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0] — 2026-11-13
+
+### Added
+- **WebM export.** Deterministic VP9 + Opus through Mediabunny's `WebMOutputFormat`, rendered
+  frame by frame like the MP4 path — not the real-time `MediaRecorder` capture, which is still
+  available as a last resort for browsers without WebCodecs.
+- **WAV audio stems.** `encodeWav()` writes 16-bit PCM straight from the offline mixdown, and the
+  export dialog has a **Download WAV** button. This is the answer to desktop editors that ignore
+  Opus inside MP4: the score arrives in a format nothing refuses.
+- **Format selector** in the export dialog (MP4 / WebM).
+- **`tools/verify-export.mjs`** — an end-to-end export check committed to the repo. It drives the
+  real dialog in a headless browser and validates each output's magic bytes.
+
+### Verified
+- MP4: 974 KB, `avc` + `opus`. WebM: 855 KB, `vp9` + `opus`. WAV: 384,044 bytes for 2s at 48 kHz
+  stereo — byte-exact for 16-bit PCM.
+
 ## [0.4.0] — 2026-11-13
 
 ### Changed

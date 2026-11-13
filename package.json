@@ -14,10 +14,12 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check": "node tools/check-links.mjs",
     "test": "playwright test",
-    "test:update": "UPDATE_SIGNATURES=1 playwright test signatures"
+    "test:update": "UPDATE_SIGNATURES=1 playwright test signatures",
+    "verify:export": "node tools/verify-export.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.0",
+    "puppeteer-core": "^24.43.1",
     "typescript": "^5.6.3"
   },
   "dependencies": {

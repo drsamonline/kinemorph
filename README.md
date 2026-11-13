@@ -42,7 +42,7 @@ apps/studio ──▶ @kinemorph/renderer ──▶ @kinemorph/core
 | **@kinemorph/core** | Zod-validated project model, Zustand store, serialisable commands with undo/redo, story engine, timeline resolver, motif geometry, colour math. No DOM, no Pixi, no Tone. |
 | **@kinemorph/renderer** | PixiJS compositor. `render(project, time)` draws one frame. Handles styles, camera, entrances and transitions. |
 | **@kinemorph/audio** | Score generator. `buildScore(mood, seconds)` returns note events; Tone.js plays them live, an `OfflineAudioContext` renders them for export. |
-| **@kinemorph/export** | Mediabunny for encoding and muxing (it succeeded `mp4-muxer`), with a real-time `MediaRecorder` fallback. |
+| **@kinemorph/export** | Mediabunny for encoding and muxing (it succeeded `mp4-muxer`): MP4/H.264 or WebM/VP9, plus 16-bit WAV audio stems. A real-time `MediaRecorder` path remains for browsers without WebCodecs. |
 | **@kinemorph/studio** | The Vite + React editor. |
 
 ### Three decisions that matter
@@ -81,6 +81,26 @@ Undo, redo and — later — collaboration all fall out of the same structure.
   per frame: the playhead and time label are updated imperatively through refs.
 
 ---
+
+## Export formats
+
+| Output | Video | Audio | Use it when |
+|---|---|---|---|
+| **MP4** | H.264 | AAC if the browser has an AAC encoder, otherwise Opus | Sharing, uploading, anything that wants the most compatible file |
+| **WebM** | VP9 | Opus | Smaller files, or when H.264 is unavailable |
+| **WAV** | — | 16-bit PCM at the score's sample rate | Getting the soundtrack into a desktop editor. Some NLEs ignore Opus inside MP4; WAV is never ignored |
+
+The export dialog picks the format, and **Download WAV** renders the score on its own — no video
+render, so it takes a second.
+
+```bash
+npm run verify:export                       # MP4 + WAV, inspects the bytes
+node tools/verify-export.mjs --container=webm
+```
+
+`tools/verify-export.mjs` drives the real dialog in a headless browser, then checks each file's
+magic bytes. It is the only test that exercises export end to end, and it is deliberately not in
+CI: a two-second show takes about a minute on a software renderer.
 
 ## Testing
 

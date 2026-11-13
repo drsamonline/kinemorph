@@ -1,5 +1,5 @@
 import {
-  AudioBufferSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality
+  AudioBufferSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality, WebMOutputFormat
 } from 'mediabunny';
 import { STYLES, totalDuration, type Project } from '@kinemorph/core';
 import type { SceneRenderer } from '@kinemorph/renderer';
@@ -17,9 +17,13 @@ import type { SceneRenderer } from '@kinemorph/renderer';
  * VideoEncoder/AudioEncoder wiring and one whole class of bug.
  */
 
+/** MP4 for sharing, WebM for a smaller file or when a container needs VP9. */
+export type Container = 'mp4' | 'webm';
+
 export interface ExportOptions {
   renderer: SceneRenderer;
   project: Project;
+  container?: Container;
   fps?: number;
   width?: number;
   height?: number;
@@ -32,6 +36,7 @@ export interface ExportOptions {
 export interface ExportResult {
   blob: Blob;
   filename: string;
+  container: Container;
   width: number;
   height: number;
   duration: number;
@@ -60,12 +65,15 @@ interface VideoChoice {
   codec: 'avc' | 'vp9';
 }
 
-async function chooseVideoCodec(width: number, height: number, bitrate: number, fps: number): Promise<VideoChoice | null> {
-  const candidates: VideoChoice[] = [
+async function chooseVideoCodec(
+  container: Container, width: number, height: number, bitrate: number, fps: number
+): Promise<VideoChoice | null> {
+  const h264: VideoChoice[] = [
     { probe: 'avc1.4d0028', codec: 'avc' },
-    { probe: 'avc1.42001f', codec: 'avc' },
-    { probe: 'vp09.00.10.08', codec: 'vp9' }
+    { probe: 'avc1.42001f', codec: 'avc' }
   ];
+  const vp9: VideoChoice[] = [{ probe: 'vp09.00.10.08', codec: 'vp9' }];
+  const candidates = container === 'webm' ? [...vp9] : [...h264, ...vp9];
   for (const candidate of candidates) {
     try {
       const support = await VideoEncoder.isConfigSupported({
@@ -84,11 +92,11 @@ interface AudioChoice {
   codec: 'aac' | 'opus';
 }
 
-async function chooseAudioCodec(sampleRate: number): Promise<AudioChoice | null> {
-  const candidates: AudioChoice[] = [
-    { probe: 'mp4a.40.2', codec: 'aac' },
-    { probe: 'opus', codec: 'opus' }
-  ];
+async function chooseAudioCodec(container: Container, sampleRate: number): Promise<AudioChoice | null> {
+  const aac: AudioChoice = { probe: 'mp4a.40.2', codec: 'aac' };
+  const opus: AudioChoice = { probe: 'opus', codec: 'opus' };
+  /* AAC is preferred inside MP4 because some editors ignore Opus; WebM only takes Opus */
+  const candidates = container === 'webm' ? [opus] : [aac, opus];
   for (const candidate of candidates) {
     try {
       const support = await AudioEncoder.isConfigSupported({
@@ -119,6 +127,7 @@ function makeSurface(width: number, height: number, smooth: boolean): HTMLCanvas
 
 async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResult> {
   const { renderer, project } = options;
+  const container = options.container ?? 'mp4';
   const fps = options.fps ?? 30;
   const width = options.width ?? 1280;
   const height = options.height ?? 720;
@@ -126,18 +135,21 @@ async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResu
   const duration = totalDuration(project);
   const style = STYLES[project.style];
 
-  const video = await chooseVideoCodec(width, height, bitrate, fps);
-  if (!video) throw new ExportUnsupportedError('No supported video codec was found for MP4 export.');
+  const video = await chooseVideoCodec(container, width, height, bitrate, fps);
+  if (!video) throw new ExportUnsupportedError(`No supported video codec was found for ${container.toUpperCase()} export.`);
 
   const audioBuffer = options.audio ?? null;
-  const audio = audioBuffer ? await chooseAudioCodec(audioBuffer.sampleRate) : null;
+  const audio = audioBuffer ? await chooseAudioCodec(container, audioBuffer.sampleRate) : null;
   let audioError: string | undefined;
-  if (audioBuffer && !audio) audioError = 'this browser has no MP4-capable audio encoder';
+  if (audioBuffer && !audio) audioError = `this browser has no ${container.toUpperCase()}-capable audio encoder`;
 
   const surface = makeSurface(width, height, !!style?.smooth);
   const ctx = surface.getContext('2d')!;
 
-  const output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+  const output = new Output({
+    format: container === 'webm' ? new WebMOutputFormat() : new Mp4OutputFormat(),
+    target: new BufferTarget()
+  });
   const videoSource = new CanvasSource(surface, {
     codec: video.codec,
     quality: new Quality({ bitrate })
@@ -187,8 +199,9 @@ async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResu
   if (!buffer) throw new Error('the muxer produced no data');
 
   return {
-    blob: new Blob([buffer], { type: 'video/mp4' }),
-    filename: `${slug(project.title)}.mp4`,
+    blob: new Blob([buffer], { type: container === 'webm' ? 'video/webm' : 'video/mp4' }),
+    filename: `${slug(project.title)}.${container}`,
+    container,
     width,
     height,
     duration,
@@ -205,6 +218,7 @@ async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResu
 /* ------------------------------------------------------------------ */
 
 interface WorkerInit {
+  container: Container;
   width: number;
   height: number;
   fps: number;
@@ -222,6 +236,7 @@ type WorkerOut =
 
 async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> {
   const { renderer, project } = options;
+  const container = options.container ?? 'mp4';
   const fps = options.fps ?? 30;
   const width = options.width ?? 1280;
   const height = options.height ?? 720;
@@ -229,13 +244,13 @@ async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> 
   const duration = totalDuration(project);
   const style = STYLES[project.style];
 
-  const video = await chooseVideoCodec(width, height, bitrate, fps);
-  if (!video) throw new ExportUnsupportedError('No supported video codec was found for MP4 export.');
+  const video = await chooseVideoCodec(container, width, height, bitrate, fps);
+  if (!video) throw new ExportUnsupportedError(`No supported video codec was found for ${container.toUpperCase()} export.`);
 
   const audioBuffer = options.audio ?? null;
-  const audio = audioBuffer ? await chooseAudioCodec(audioBuffer.sampleRate) : null;
+  const audio = audioBuffer ? await chooseAudioCodec(container, audioBuffer.sampleRate) : null;
   let audioError: string | undefined;
-  if (audioBuffer && !audio) audioError = 'this browser has no MP4-capable audio encoder';
+  if (audioBuffer && !audio) audioError = `this browser has no ${container.toUpperCase()}-capable audio encoder`;
 
   let worker: Worker;
   try {
@@ -271,7 +286,7 @@ async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> 
   });
 
   const init: WorkerInit = {
-    width, height, fps, bitrate,
+    container, width, height, fps, bitrate,
     videoCodec: video.codec,
     audioCodec: audio?.codec ?? null,
     sampleRate: audioBuffer?.sampleRate ?? 48_000
@@ -304,8 +319,9 @@ async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> 
     const result = await done;
 
     return {
-      blob: new Blob([result.buffer], { type: 'video/mp4' }),
-      filename: `${slug(project.title)}.mp4`,
+      blob: new Blob([result.buffer], { type: container === 'webm' ? 'video/webm' : 'video/mp4' }),
+      filename: `${slug(project.title)}.${container}`,
+      container,
       width,
       height,
       duration,
@@ -402,6 +418,7 @@ export async function recordWebM(options: RecordOptions): Promise<ExportResult> 
   return {
     blob: new Blob(chunks, { type: mimeType }),
     filename: `${slug(project.title)}.webm`,
+    container: 'webm' as Container,
     width: renderer.canvas.width,
     height: renderer.canvas.height,
     duration,
@@ -422,4 +439,57 @@ export function downloadBlob(blob: Blob, filename: string): void {
     URL.revokeObjectURL(url);
     anchor.remove();
   }, 1500);
+}
+
+/* ------------------------------------------------------------------ */
+/* Audio stems                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A 16-bit PCM WAV of the score. Exporting the video silent and the audio as
+ * WAV is the reliable way to get a soundtrack into a desktop editor: WAV is
+ * universal, while Opus-in-MP4 is ignored by some NLEs.
+ */
+export function encodeWav(buffer: AudioBuffer): Blob {
+  const channels = Math.min(2, buffer.numberOfChannels);
+  const frames = buffer.length;
+  const bytesPerSample = 2;
+  const dataBytes = frames * channels * bytesPerSample;
+  const view = new DataView(new ArrayBuffer(44 + dataBytes));
+
+  const ascii = (offset: number, text: string) => {
+    for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i));
+  };
+
+  ascii(0, 'RIFF');
+  view.setUint32(4, 36 + dataBytes, true);
+  ascii(8, 'WAVE');
+  ascii(12, 'fmt ');
+  view.setUint32(16, 16, true);            // PCM chunk size
+  view.setUint16(20, 1, true);             // format: PCM
+  view.setUint16(22, channels, true);
+  view.setUint32(24, buffer.sampleRate, true);
+  view.setUint32(28, buffer.sampleRate * channels * bytesPerSample, true); // byte rate
+  view.setUint16(32, channels * bytesPerSample, true);                     // block align
+  view.setUint16(34, 16, true);            // bits per sample
+  ascii(36, 'data');
+  view.setUint32(40, dataBytes, true);
+
+  const data: Float32Array[] = [];
+  for (let c = 0; c < channels; c++) data.push(buffer.getChannelData(c));
+
+  let offset = 44;
+  for (let i = 0; i < frames; i++) {
+    for (let c = 0; c < channels; c++) {
+      const sample = Math.max(-1, Math.min(1, data[c][i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+      offset += bytesPerSample;
+    }
+  }
+
+  return new Blob([view.buffer], { type: 'audio/wav' });
+}
+
+export function wavFilename(project: Project): string {
+  return `${slug(project.title)}-score.wav`;
 }
