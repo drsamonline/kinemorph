@@ -107,6 +107,10 @@ encodes it, then mixes the score through an `OfflineAudioContext` and muxes ever
 one MP4. Nothing is captured in real time, so a busy tab cannot drop a frame. It is
 CPU-heavy: software rendering can take a couple of minutes for a short show.
 
+**Aspect** switches the output between landscape 16:9, portrait 9:16, square 1:1 and tall 4:5.
+The layout reflows for each; the stage switches to match so you can see what you are about to
+record.
+
 **Format** switches between MP4 (H.264) and WebM (VP9). Both are rendered frame by frame; neither
 is a screen recording. WebM files are usually smaller.
 

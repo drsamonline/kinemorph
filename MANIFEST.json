@@ -39,7 +39,7 @@
       "class": "hand"
     },
     "CHANGELOG.md": {
-      "sha256": "0e44b9f79dcd7bca64996a6cd9bb5c5da7515be7d466555a89c00c9bc0922458",
+      "sha256": "c0b00ab4d4f5a21ef664a1efd213269c19902330e6c695846d9eba8e78545a61",
       "class": "hand"
     },
     "CITATION.cff": {
@@ -63,7 +63,7 @@
       "class": "hand"
     },
     "README.md": {
-      "sha256": "7a51a3115aef91b321a38ae6a63f4bc2a238b3b0df1390476b8abf8fec148d79",
+      "sha256": "56c1bbe66b393ade8ed71e30abb9e6da113f133e1d617670340a85836b40eef7",
       "class": "hand"
     },
     "SECURITY.md": {
@@ -95,7 +95,7 @@
       "class": "source"
     },
     "apps/studio/src/ExportPanel.tsx": {
-      "sha256": "02c6f69f1bd85bd2b615d4a048b5e79331e1451d3bf9c58a10004ffef4b78517",
+      "sha256": "7eeef5e1aa272d68c614e808c19d11895c22397a57f7ff62ea3385cf09b8ef0d",
       "class": "source"
     },
     "apps/studio/src/Stage.tsx": {
@@ -143,7 +143,7 @@
       "class": "asset"
     },
     "docs/guide.md": {
-      "sha256": "d9f83aa7e4ba3641f43a0763c68f532bcdb4e4c6c49479df0dc1b0ac98e99530",
+      "sha256": "b695e8d239798fdd5a3b915d941b67e0b8e6842c13ec6c4dbe167f5130141536",
       "class": "hand"
     },
     "favicon.svg": {
@@ -223,7 +223,7 @@
       "class": "source"
     },
     "packages/export/src/index.ts": {
-      "sha256": "12117d9a3d7cfe80984cb9a205e718163259be4a60418a8dd6721d57e9d084a0",
+      "sha256": "420a44399ba48828724687e9c79a20df6f8926ab15b003f6721d8ae0c01414d7",
       "class": "source"
     },
     "packages/renderer/package.json": {
@@ -231,7 +231,7 @@
       "class": "source"
     },
     "packages/renderer/src/index.ts": {
-      "sha256": "066fa716d2a74a7f5bed10102de92afadf8161f13e46f4aab37875ac30258e11",
+      "sha256": "ecd67496a44f8fd2f0b197fa5718eefa5e639bdfd858c9665ee6f6a77f0e0eee",
       "class": "source"
     },
     "playwright.config.ts": {
@@ -246,40 +246,40 @@
       "sha256": "6b299bc519b3f6ff61e0d52036b3f00947856ca5e71dcb78e8b584ade1fcc90e",
       "class": "hand"
     },
-    "studio/assets/CanvasRenderer-CE8n1JJk.js": {
-      "sha256": "3556f338f2247e170b521a16d24fd131c95f523eb8331209de4aacecdb464276",
+    "studio/assets/CanvasRenderer-BSXrvXU1.js": {
+      "sha256": "fb86e5040c9cd29bf71edec2ee0284123df07e4de7104263099ad82ed78c3045",
       "class": "generated"
     },
-    "studio/assets/RenderTargetSystem-BWufVDaz.js": {
-      "sha256": "5a9742b4f96104ba374da99c73b0eea8661207383a783c25c7a66fb75e951c50",
+    "studio/assets/RenderTargetSystem-CQiZUSC2.js": {
+      "sha256": "10baa1bf57d6bbd8fa11578666e2f7ddb0d435fa5c9b8bb4cdb1613253831d30",
       "class": "generated"
     },
-    "studio/assets/WebGLRenderer-Cf2l3nVP.js": {
-      "sha256": "f9e8c0774e59d39f0a4f9ab097a2d3cf47b1f128afdc258f35787ce0b70541a5",
+    "studio/assets/WebGLRenderer-CTsI0wqZ.js": {
+      "sha256": "0343fab1e1950e955277fe87d0ccfec25a960ed4d855a986fb84ed2ed041f109",
       "class": "generated"
     },
-    "studio/assets/WebGPURenderer-Qt4-Aqik.js": {
-      "sha256": "c5b8b30d8dc32de7550b3c8ed1e3cbde13ba72018a8bdff7f3d9b51be01e81f5",
+    "studio/assets/WebGPURenderer-D9Ej8YUi.js": {
+      "sha256": "bc1fec681f3bcaae28c1c8e1ca5eb75a9e6836760f8ac6fe997e9e3b23c4bde7",
       "class": "generated"
     },
-    "studio/assets/browserAll-BxbHNXsU.js": {
-      "sha256": "2ee9bc6d81a4d0c2e69923cfefaf22877cb2949b068cd67b5f50e031b8a7accb",
+    "studio/assets/browserAll-Y4Rs4p53.js": {
+      "sha256": "04d362c590e87728b287e9e21936f4469255b99f40705783571ac8e83979b60d",
       "class": "generated"
     },
     "studio/assets/encode-worker-DlEJKUZa.js": {
       "sha256": "fed6ff633a04adda7af24a3f568260acaf2346c1ae55845f86573cc284488100",
       "class": "generated"
     },
-    "studio/assets/getTexelRangeRects-Dsk6N1_g.js": {
-      "sha256": "5cfe6a11de687137b220347d8c55b4b768189300f402a4aa2c2b228990cc340e",
+    "studio/assets/getTexelRangeRects-CjHvA8FL.js": {
+      "sha256": "e27ce9d8357b6f139d32c16dcda9e6a87bfc0c6bacf910bed81b4c90c5599111",
       "class": "generated"
     },
-    "studio/assets/harness-CvfAcfCa.js": {
-      "sha256": "4b9432d64071a51966f509a181a5b83fa2cae34bf13bc12d417ce56c1d7a91ed",
+    "studio/assets/harness-T1Db-PmJ.js": {
+      "sha256": "5450ca64dced764417d4d2d38c8f50fc7168d804e5aafa3dce1413269d6ba247",
       "class": "generated"
     },
-    "studio/assets/index-BxDSNOQy.js": {
-      "sha256": "c28654c6ba5ccb64bd5fee3512969ca6bf38270a889661b3a3f4a5f91d2a17f7",
+    "studio/assets/index-BUMqQHnm.js": {
+      "sha256": "659f95d9de488de6ff14e15fcf882f16ee966c564e0cb7c6c7b15b1da12bcbb1",
       "class": "generated"
     },
     "studio/assets/index-LVOg-jrj.js": {
@@ -290,8 +290,8 @@
       "sha256": "974df71294b1a2e48ba24e4aa3dc4eaa66d6e6da37f1020de2ade84b1db3d473",
       "class": "generated"
     },
-    "studio/assets/main-ehVFaxnE.js": {
-      "sha256": "1fac760f8c9820eba98319a6510245ad80ef3792bc00662f43a241c0cb853886",
+    "studio/assets/main-aV7rMZOe.js": {
+      "sha256": "4a082e6993405554b4cde1f1a84bbf36ee99f7a8a5c11ac8159feaa2fc71cb13",
       "class": "generated"
     },
     "studio/assets/selftest-qFDWI7ey.js": {
@@ -302,8 +302,8 @@
       "sha256": "e4baff6a69173eff7e32c6944590e745636f203c151635cc42c0467dd2d98df4",
       "class": "generated"
     },
-    "studio/assets/webworkerAll-Da4cznVP.js": {
-      "sha256": "cfaae02895a42cfb4086d67469f74aa4023bf7c75ec29c9cf825a8e322267287",
+    "studio/assets/webworkerAll-3BxD_ePZ.js": {
+      "sha256": "889918941f071ac483a0fbe499bfdce4d311dcba3610238b5fc0c7800c02ee6e",
       "class": "generated"
     },
     "studio/favicon.svg": {
@@ -311,11 +311,11 @@
       "class": "generated"
     },
     "studio/harness.html": {
-      "sha256": "a9c45226961bd4cb67d49252c2ec4891261abceae12ffb8c33dd502a2e15a39e",
+      "sha256": "3439f9477ab48e411067cbce7e2b20902187682c8f902715deac380a5e6f3f2f",
       "class": "generated"
     },
     "studio/index.html": {
-      "sha256": "f110f9a2db785e71249464a2e8a80e6ac2d07c2aad7f4343dde4a46a7330d8bb",
+      "sha256": "d9c33638da04a359cf71d8ce1b1b3592869e2715e576450252ea0252c23a9387",
       "class": "generated"
     },
     "studio/selftest.html": {
@@ -347,7 +347,7 @@
       "class": "tooling"
     },
     "tools/verify-export.mjs": {
-      "sha256": "889de88db23f40fbb7b533a1ef13b667913d9129e476108f47125177616568c7",
+      "sha256": "b01406f53ae9ee5e37aa1b08c46fbaf755003c72552aa2f21628131c5543b0ff",
       "class": "tooling"
     },
     "tsconfig.base.json": {

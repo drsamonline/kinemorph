@@ -2,7 +2,7 @@ import {
   AudioBufferSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality, WebMOutputFormat
 } from 'mediabunny';
 import { STYLES, totalDuration, type Project } from '@kinemorph/core';
-import type { SceneRenderer } from '@kinemorph/renderer';
+import { ASPECTS, type AspectId, type SceneRenderer } from '@kinemorph/renderer';
 
 /**
  * Frame-exact video export.
@@ -24,6 +24,8 @@ export interface ExportOptions {
   renderer: SceneRenderer;
   project: Project;
   container?: Container;
+  /** Output format. Defaults to the renderer's current design space. */
+  aspect?: AspectId;
   fps?: number;
   width?: number;
   height?: number;
@@ -50,6 +52,13 @@ export interface ExportResult {
 }
 
 export class ExportUnsupportedError extends Error {}
+
+/** Output pixel size for a format at a given long edge. */
+export function sizeForAspect(aspect: AspectId, longEdge = 1280): { width: number; height: number } {
+  const a = ASPECTS[aspect] ?? ASPECTS['16:9'];
+  const scale = longEdge / Math.max(a.w, a.h);
+  return { width: Math.round((a.w * scale) / 2) * 2, height: Math.round((a.h * scale) / 2) * 2 };
+}
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'show';
@@ -143,6 +152,7 @@ async function exportMP4OnMainThread(options: ExportOptions): Promise<ExportResu
   let audioError: string | undefined;
   if (audioBuffer && !audio) audioError = `this browser has no ${container.toUpperCase()}-capable audio encoder`;
 
+  if (options.aspect) renderer.setDesign(options.aspect);
   const surface = makeSurface(width, height, !!style?.smooth);
   const ctx = surface.getContext('2d')!;
 
@@ -293,6 +303,7 @@ async function exportMP4InWorker(options: ExportOptions): Promise<ExportResult> 
   };
   worker.postMessage({ type: 'init', config: init });
 
+  if (options.aspect) renderer.setDesign(options.aspect);
   const surface = makeSurface(width, height, !!style?.smooth);
   const ctx = surface.getContext('2d')!;
   const totalFrames = Math.max(1, Math.round(duration * fps));

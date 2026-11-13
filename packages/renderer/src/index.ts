@@ -19,8 +19,19 @@ import {
  *    one path — which is what makes the exported video match what you saw.
  */
 
-const DESIGN_W = 1920;
-const DESIGN_H = 1080;
+let DESIGN_W = 1920;
+let DESIGN_H = 1080;
+
+/** Output formats. Portrait reflows the layout rather than cropping it. */
+export const ASPECTS = {
+  '16:9': { w: 1920, h: 1080, label: 'Landscape 16:9' },
+  '9:16': { w: 1080, h: 1920, label: 'Portrait 9:16' },
+  '1:1': { w: 1080, h: 1080, label: 'Square 1:1' },
+  '4:5': { w: 1080, h: 1350, label: 'Portrait 4:5' }
+} as const;
+export type AspectId = keyof typeof ASPECTS;
+
+const isPortrait = () => DESIGN_H > DESIGN_W * 1.02;
 
 const hex = (value: string): number => parseInt(value.replace('#', ''), 16);
 
@@ -88,12 +99,33 @@ export class SceneRenderer {
     this.root.position.set(0, 0);
   }
 
+  private nativeHeight(): number {
+    return Math.round((this.style.width * DESIGN_H) / DESIGN_W);
+  }
+
+  /** Switch output format. The design space changes, so cached views are dropped. */
+  setDesign(aspect: AspectId): void {
+    const a = ASPECTS[aspect] ?? ASPECTS['16:9'];
+    if (a.w === DESIGN_W && a.h === DESIGN_H) return;
+    DESIGN_W = a.w;
+    DESIGN_H = a.h;
+    if (!this.ready) return;
+    this.app.renderer.resize(this.style.width, this.nativeHeight());
+    this.applyStageScale();
+    this.views.clear();
+    this.layerA.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.layerB.removeChildren().forEach((c) => c.destroy({ children: true }));
+  }
+
+  get designWidth(): number { return DESIGN_W; }
+  get designHeight(): number { return DESIGN_H; }
+
   setStyle(style: StyleDef): void {
     if (style.id === this.lastStyleId) return;
     this.lastStyleId = style.id;
     this.style = style;
     if (!this.ready) return;
-    this.app.renderer.resize(style.width, style.height);
+    this.app.renderer.resize(style.width, this.nativeHeight());
     this.app.renderer.background.color = hex(style.palette.bg);
     this.applyStageScale();
     const canvas = this.canvas;
@@ -450,8 +482,9 @@ class SceneView {
     this.drawBackground(style, t);
 
     const center = this.isCenter(scene);
-    const cx = center ? DESIGN_W / 2 : 1390;
-    const cy = center ? 520 : 560;
+    const portrait = isPortrait();
+    const cx = center ? DESIGN_W / 2 : (portrait ? DESIGN_W * 0.72 : 1390);
+    const cy = center ? (portrait ? DESIGN_H * 0.7 : 520) : (portrait ? DESIGN_H * 0.52 : 560);
     const baseR = center ? 400 : 300;
     const ease = EASES[scene.ease] ?? EASES.back;
     const enter = ease(clamp(t / 0.9, 0, 1));
@@ -475,10 +508,11 @@ class SceneView {
   }
 
   private layoutText(scene: Scene, style: StyleDef, accent: string, t: number, enter: number): void {
-    const center = this.isCenter(scene);
+    const portrait = isPortrait();
+    const center = this.isCenter(scene) || portrait;
     const { title, body, container } = this.textLayer;
-    const maxW = center ? 1360 : 800;
-    const left = center ? (DESIGN_W - maxW) / 2 : 130;
+    const maxW = center ? (portrait ? DESIGN_W * 0.86 : 1360) : DESIGN_W * 0.43;
+    const left = center ? (DESIGN_W - maxW) / 2 : (portrait ? DESIGN_W * 0.068 : 130);
 
     if (this.titleText !== scene.title) {
       title.text = scene.title;
@@ -499,12 +533,12 @@ class SceneView {
 
     body.style.fontFamily = style.font.body;
     body.style.fontWeight = style.font.weightBody as TextStyle['fontWeight'];
-    body.style.wordWrapWidth = center ? 1180 : 760;
+    body.style.wordWrapWidth = center ? (portrait ? DESIGN_W * 0.78 : 1180) : DESIGN_W * 0.41;
     body.style.align = center ? 'center' : 'left';
     body.style.fill = style.id === 'stick' || style.id === 'paper' ? '#2a2a33' : 'rgba(240,244,255,0.88)';
 
     /* fit the title into two lines */
-    let size = center ? 118 : 96;
+    let size = center ? (portrait ? Math.round(DESIGN_W * 0.085) : 118) : 96;
     for (let guard = 0; guard < 14; guard++) {
       title.style.fontSize = size;
       title.style.lineHeight = Math.round(size * 1.08);
@@ -512,7 +546,7 @@ class SceneView {
       size -= 6;
     }
 
-    const titleY = center ? 470 - title.height / 2 : 300;
+    const titleY = center ? (portrait ? DESIGN_H * 0.3 - title.height / 2 : 470 - title.height / 2) : (portrait ? DESIGN_H * 0.28 : 300);
     title.position.set(left, titleY);
     title.anchor.set(0, 0);
 
@@ -523,9 +557,9 @@ class SceneView {
     const visible = words.slice(0, Math.min(words.length, shown)).join(' ');
     if (body.text !== visible) body.text = visible;
 
-    body.style.fontSize = center ? 40 : 38;
-    body.style.lineHeight = Math.round((center ? 40 : 38) * 1.55);
-    body.position.set(left, titleY + title.height + (center ? 60 : 90));
+    body.style.fontSize = center ? (portrait ? Math.round(DESIGN_W * 0.036) : 40) : 38;
+    body.style.lineHeight = Math.round((center ? (portrait ? Math.round(DESIGN_W * 0.036) : 40) : 38) * 1.55);
+    body.position.set(left, titleY + title.height + (center ? (portrait ? DESIGN_H * 0.05 : 60) : 90));
 
     /* entrance transform */
     let dx = 0, dy = 0, sx = 1, sy = 1, blur = 0;
@@ -570,8 +604,12 @@ class SceneView {
   morphTo(to: Scene, style: StyleDef, e: number, t: number): void {
     const accent = ensureContrast(e < 0.5 ? this.currentAccent ?? to.accent : to.accent, style.palette.bg, 3);
     const fromCenter = false;
-    const cx = lerp(fromCenter ? DESIGN_W / 2 : 1390, to.layout === 'center' ? DESIGN_W / 2 : 1390, e);
-    const cy = lerp(560, to.layout === 'center' ? 520 : 560, e);
+    const portrait = isPortrait();
+    const ax = fromCenter ? DESIGN_W / 2 : (portrait ? DESIGN_W * 0.72 : 1390);
+    const bx = to.layout === 'center' || portrait ? DESIGN_W / 2 : (portrait ? DESIGN_W * 0.72 : 1390);
+    const cx = lerp(ax, bx, e);
+    const cy = lerp(portrait ? DESIGN_H * 0.7 : 560,
+      (to.layout === 'center' || portrait) ? (portrait ? DESIGN_H * 0.7 : 520) : (portrait ? DESIGN_H * 0.52 : 560), e);
     const r = lerp(300, to.layout === 'center' ? 400 : 300, e);
     const points = morphPoints(this.currentMotif ?? 'sun', to.motif, e);
     this.drawMotif(points, style, accent, cx, cy, r, lerp(0, 0.5, e), 1);

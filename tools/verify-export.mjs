@@ -19,6 +19,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const studioDir = path.join(root, 'studio');
 const downloadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kinemorph-export-'));
 const container = (process.argv.find((a) => a.startsWith('--container=')) ?? '--container=mp4').split('=')[1];
+const aspect = (process.argv.find((a) => a.startsWith('--aspect=')) ?? '--aspect=16:9').split('=')[1];
 const port = 4319;
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
@@ -92,7 +93,14 @@ console.log('capabilities:', JSON.stringify(capabilities));
 
 await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => b.textContent.includes('Export video'))?.click());
 await new Promise((r) => setTimeout(r, 400));
-await page.select('.modal-card.export select', container);
+/* pick by option value, not by position — the dialog gained a format selector */
+await page.evaluate(({ aspect: a, container: c }) => {
+  const selects = [...document.querySelectorAll('.modal-card.export select')];
+  const aspectSel = selects.find((sel) => [...sel.options].some((o) => o.value === '9:16'));
+  const fmtSel = selects.find((sel) => [...sel.options].some((o) => o.value === 'mp4'));
+  if (aspectSel) { aspectSel.value = a; aspectSel.dispatchEvent(new Event('change', { bubbles: true })); }
+  if (fmtSel) { fmtSel.value = c; fmtSel.dispatchEvent(new Event('change', { bubbles: true })); }
+}, { aspect, container });
 await page.evaluate((ext) => {
   [...document.querySelectorAll('.modal-card.export button')].find((b) => b.textContent.includes(`Export ${ext.toUpperCase()}`))?.click();
 }, container);
@@ -117,8 +125,6 @@ for (let i = 0; i < 40; i++) {
 }
 
 files = fs.readdirSync(downloadDir).filter((f) => !f.endsWith('.crdownload'));
-await browser.close();
-server.close();
 
 const checks = [];
 for (const file of files) {
@@ -146,4 +152,27 @@ if (checks.some(([, , verdict]) => String(verdict).startsWith('BAD'))) {
   console.error('\nFAILED — a container header is wrong');
   process.exit(1);
 }
+/* the container header does not prove the dimensions — ask a video element */
+const video = files.find((f) => f.endsWith('.mp4') || f.endsWith('.webm'));
+if (video) {
+  const base64 = fs.readFileSync(path.join(downloadDir, video)).toString('base64');
+  const mime = video.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+  const dims = await page.evaluate(
+    ({ src }) => new Promise((resolve) => {
+      const el = document.createElement('video');
+      el.onloadedmetadata = () => resolve([el.videoWidth, el.videoHeight]);
+      el.onerror = () => resolve([0, 0]);
+      el.src = src;
+    }),
+    { src: `data:${mime};base64,${base64}` }
+  );
+  console.log(`dimensions: ${dims[0]}x${dims[1]} (asked for ${aspect})`);
+  if (!dims[0]) {
+    console.error('FAILED — the browser could not read the video back');
+    process.exit(1);
+  }
+}
+
+await browser.close();
+server.close();
 console.log('\nOK — every expected output exists and has a valid header.');

@@ -82,6 +82,21 @@ Undo, redo and — later — collaboration all fall out of the same structure.
 
 ---
 
+## Output formats
+
+The renderer's design space follows the format, so portrait is a reflow and not a crop: the title
+moves to the upper third and the artwork to the lower half, and split layouts become centred.
+
+| Aspect | Output (720p preset) | Use |
+|---|---|---|
+| `16:9` | 1280 × 720 | Landscape, default |
+| `9:16` | 720 × 1280 | Reels, Shorts, Stories, TikTok |
+| `1:1` | 1280 × 1280 | Feed square |
+| `4:5` | 1080 × 1350 | Instagram portrait |
+
+Pick it in the export dialog. The stage switches to the chosen format so you can see what will be
+recorded, and stays there until you change it back.
+
 ## Export formats
 
 | Output | Video | Audio | Use it when |
@@ -94,8 +109,9 @@ The export dialog picks the format, and **Download WAV** renders the score on it
 render, so it takes a second.
 
 ```bash
-npm run verify:export                       # MP4 + WAV, inspects the bytes
+npm run verify:export                        # MP4 + WAV, inspects the bytes
 node tools/verify-export.mjs --container=webm
+node tools/verify-export.mjs --aspect=9:16   # also decodes the result and reports its size
 ```
 
 `tools/verify-export.mjs` drives the real dialog in a headless browser, then checks each file's

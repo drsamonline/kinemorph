@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { totalDuration, type Project } from '@kinemorph/core';
 import type { SceneRenderer } from '@kinemorph/renderer';
 import { renderScoreOffline } from '@kinemorph/audio';
+import { ASPECTS, type AspectId } from '@kinemorph/renderer';
 import {
-  ExportUnsupportedError, downloadBlob, encodeWav, exportMP4, recordWebM, wavFilename
+  ExportUnsupportedError, downloadBlob, encodeWav, exportMP4, recordWebM, sizeForAspect, wavFilename
 } from '@kinemorph/export';
 
 type Phase = 'idle' | 'audio' | 'video' | 'muxing' | 'done' | 'error';
@@ -16,6 +17,7 @@ export function ExportPanel({
   onClose: () => void;
 }) {
   const [container, setContainer] = useState<'mp4' | 'webm'>('mp4');
+  const [aspect, setAspect] = useState<AspectId>('16:9');
   const [fps, setFps] = useState(30);
   const [resolution, setResolution] = useState<'720' | '1080'>('720');
   const [withAudio, setWithAudio] = useState(true);
@@ -64,14 +66,15 @@ export function ExportPanel({
         return;
       }
 
-      const height = resolution === '1080' ? 1080 : 720;
+      const size = sizeForAspect(aspect, resolution === '1080' ? 1920 : 1280);
       const result = await exportMP4({
         renderer,
         project,
         container,
+        aspect,
         fps,
-        width: Math.round((height * 16) / 9),
-        height,
+        width: size.width,
+        height: size.height,
         audio,
         onProgress: (stage, value) => {
           setPhase(stage);
@@ -107,6 +110,13 @@ export function ExportPanel({
         </header>
 
         <div className="row three">
+          <label className="field">Aspect
+            <select value={aspect} onChange={(e) => setAspect(e.target.value as AspectId)} disabled={busy}>
+              {(Object.keys(ASPECTS) as AspectId[]).map((k) => (
+                <option key={k} value={k}>{ASPECTS[k].label}</option>
+              ))}
+            </select>
+          </label>
           <label className="field">Format
             <select value={container} onChange={(e) => setContainer(e.target.value as 'mp4' | 'webm')} disabled={busy}>
               <option value="mp4">MP4</option>

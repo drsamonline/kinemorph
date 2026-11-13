@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0] — 2026-11-13
+
+### Added
+- **Output formats for video export** — landscape 16:9, portrait 9:16, square 1:1 and tall 4:5.
+  The renderer's design space follows the format and the layout reflows: portrait puts the title
+  in the upper third and the artwork below, and split layouts become centred.
+- `sizeForAspect(aspect, longEdge)` in `@kinemorph/export` so callers do not hard-code sizes.
+- `tools/verify-export.mjs --aspect=…` now decodes the finished file in a video element and
+  reports its real dimensions, instead of trusting the container header.
+
+### Verified
+- 9:16 → 720×1280, 1:1 → 1280×1280, 16:9 → 1280×720, each read back from the encoded file.
+- Landscape geometry is byte-identical to before, so the 84 golden frames still match.
+
 ## [0.5.0] — 2026-11-13
 
 ### Added
