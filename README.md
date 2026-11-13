@@ -101,9 +101,21 @@ npm run test:update      # regenerate the golden signatures after a visual chang
 Playwright runs the *built* site through `vite preview`, so the tests exercise exactly what ships.
 Locally, `CHROME_PATH=/usr/bin/chromium npm test` skips the browser download.
 
-The signatures were generated on Chromium + SwiftShader. On a machine with a hardware GPU the
-colours may land a few units away; if a run fails on colour drift alone, regenerate with
-`npm run test:update` and commit the result.
+The golden frames render **without text**, so installed fonts cannot move them — the suite
+covers artwork, and typography is covered by the editor smoke test.
+
+Baselines must come from the same Chromium that verifies them. Regenerate on the runner, not on
+your laptop:
+
+```
+gh workflow run ci.yml -f update_signatures=true   # uploads tests/signatures.json
+gh run download <run-id> -n signatures -D /tmp/sig
+cp /tmp/sig/signatures.json tests/signatures.json
+```
+
+This is not ceremony. The first baseline was generated on a different Chromium build and the
+neon style drifted by 200 on one cell — the text block, because the two machines had different
+fonts. Generating baselines where they are checked removes that whole class of false failure.
 
 ## Known limitations
 

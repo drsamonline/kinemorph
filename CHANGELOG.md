@@ -15,6 +15,9 @@
 
 ### Changed
 - `SceneRenderer.init()` takes `preserveDrawingBuffer`, used only by the harness.
+- The golden harness renders without text so the baseline is font-independent.
+- Golden baselines are generated on the CI runner via `workflow_dispatch`, because a different
+  Chromium build shifted one cell by 200.
 - `exportMP4()` picks the worker path automatically and keeps the main-thread implementation as
   a fallback.
 
