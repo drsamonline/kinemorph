@@ -79,7 +79,7 @@
       "class": "source"
     },
     "apps/studio/package.json": {
-      "sha256": "357364dfb91742669633709e94d669c9f4f68100d3085c1812ab339b71ba9ff4",
+      "sha256": "c9520ef7d9e25199e829ac2eb7a23c1b1ff0f1a728f369428ae3f78b2cc4eaf7",
       "class": "source"
     },
     "apps/studio/public/favicon.svg": {
@@ -92,6 +92,10 @@
     },
     "apps/studio/src/App.tsx": {
       "sha256": "14bc8e639c97e5332f7a19c332eb35c720f3cd65a42c56d7f830ece7b843d322",
+      "class": "source"
+    },
+    "apps/studio/src/ErrorBoundary.tsx": {
+      "sha256": "8eaa59549a7aebd58bd02a7296d245aa8df2c668d76da005c2b817e6c35a21c7",
       "class": "source"
     },
     "apps/studio/src/ExportPanel.tsx": {
@@ -111,7 +115,7 @@
       "class": "source"
     },
     "apps/studio/src/main.tsx": {
-      "sha256": "75e781d6b7bb490ab196d6d7a2e7469e3ab2db1dd929bd2fb2c45acdf1f5f6b0",
+      "sha256": "deca5c6aa2a5caa26220fb81eb1ae7d5bf6492dfbbfd889cd25d31a387c6ef01",
       "class": "source"
     },
     "apps/studio/src/selftest.ts": {
@@ -119,7 +123,7 @@
       "class": "source"
     },
     "apps/studio/src/styles.css": {
-      "sha256": "1271fbb1fdafa8bbfb66fc5f3da43f83a099acee03962512446973517ed16d5d",
+      "sha256": "ca6f5fa3206afa6fc9c258f64bcbc05b2e385a1e7b7ba2524f5cd89afeb55d06",
       "class": "source"
     },
     "apps/studio/vite.config.ts": {
@@ -159,7 +163,7 @@
       "class": "hand"
     },
     "package-lock.json": {
-      "sha256": "00cc1dab4858eef7296681b7ad8163c6e4d3f0a2d66ecaad9700f6eb79859d35",
+      "sha256": "8366c56531fbd21db1fe52eaaabf4cde1e3c3e6eb1567b3f9da63247f637bd85",
       "class": "hand"
     },
     "package.json": {
@@ -167,7 +171,7 @@
       "class": "hand"
     },
     "packages/audio/package.json": {
-      "sha256": "fce3d53abc1e94883659c8296c9acd55e74b923bdc7c906b6990e3d9caf8efeb",
+      "sha256": "764ff93864e89d42f6871dc805087de3d7f3b9d5e462ae4be3f56e9c85344a6e",
       "class": "source"
     },
     "packages/audio/src/index.ts": {
@@ -175,7 +179,7 @@
       "class": "source"
     },
     "packages/core/package.json": {
-      "sha256": "14c33f48ccb6e306c6405c3cf0237d581f991df5b4e623269c9780c3f6015829",
+      "sha256": "e19d672cfc6881d5b00108273dadf73e5f903f59969b957bffd17eab4ef90154",
       "class": "source"
     },
     "packages/core/src/commands.ts": {
@@ -199,7 +203,7 @@
       "class": "source"
     },
     "packages/core/src/store.ts": {
-      "sha256": "07afe1c46ce5fea845227376bc0832334cdaeca84c1ba8941b7349b09fe5330a",
+      "sha256": "bdd3df8603755e9f1e53ad3bad322ff689be423696df89078b8d6ae7b254f7f4",
       "class": "source"
     },
     "packages/core/src/story.ts": {
@@ -215,7 +219,7 @@
       "class": "source"
     },
     "packages/export/package.json": {
-      "sha256": "30e1c403482200ef14ea791023fba3dbe8d33c4e7ee9e7362466d51883915b1a",
+      "sha256": "8cb41146e28dd803d770788a197c02aa8cfd1918b835703715929a80bec1fa54",
       "class": "source"
     },
     "packages/export/src/encode-worker.ts": {
@@ -227,7 +231,7 @@
       "class": "source"
     },
     "packages/renderer/package.json": {
-      "sha256": "ae07c5927c7dcb30f05b6a665119fd8a8c759b7c86b849f69f9960e7ef6973fe",
+      "sha256": "99419d4e995daef4a5f65f16aec3da0d3315029dcd2c100317961e0b4f3c55e1",
       "class": "source"
     },
     "packages/renderer/src/index.ts": {
@@ -246,64 +250,64 @@
       "sha256": "6b299bc519b3f6ff61e0d52036b3f00947856ca5e71dcb78e8b584ade1fcc90e",
       "class": "hand"
     },
-    "studio/assets/CanvasRenderer-DbVi5KRI.js": {
-      "sha256": "d68f584895dd52e62ed6d74f7a2e5c077e822ad799cafed33377e4dedade417d",
+    "studio/assets/CanvasRenderer-4efveCXb.js": {
+      "sha256": "1543453df8a75571ff1fe5a46793d6fbf76bab8c11e10f3ecc2d21385fffb656",
       "class": "generated"
     },
-    "studio/assets/RenderTargetSystem-DtusQYxk.js": {
-      "sha256": "30a2259bf5e24b4a596dc879d4986f94beba1a2d1b4f9db635e8f5c858f364ef",
+    "studio/assets/RenderTargetSystem-CzPxPdCn.js": {
+      "sha256": "ae4d95659a4c03d83349a07f94a59ec481affc9c4cfb01da73f2cae653de24a9",
       "class": "generated"
     },
-    "studio/assets/WebGLRenderer-DBM2FMpX.js": {
-      "sha256": "e43e55d5503a69620c89c166a3992a4212307fdf7c780702c57c5a506bc164c5",
+    "studio/assets/WebGLRenderer-WGUzkhoQ.js": {
+      "sha256": "671b18c52d3b03c77cd06bec59238c3f703fb8f4b5f92f3da9fc4232aff4c316",
       "class": "generated"
     },
-    "studio/assets/WebGPURenderer-wb1p-oWK.js": {
-      "sha256": "719b0d9f2c0ef132917d1d61b779b2374e9320a772ca5d5847c08c4fc8003152",
+    "studio/assets/WebGPURenderer-Eggy2kGP.js": {
+      "sha256": "709c612e6b9a25258f2c596ee787ad3bb70501a467056b1638651e2504e507e3",
       "class": "generated"
     },
-    "studio/assets/browserAll-D-kCcu9P.js": {
-      "sha256": "915a21c392d8e8f71ed397db5e068ff28a52a1d6ed520a3a3c1977be8982d976",
+    "studio/assets/browserAll-DhgIVYJ2.js": {
+      "sha256": "e601ed0f04426825ae4ebc6da2bc69a33262facaa093ba6293188bfa4d21b4b5",
       "class": "generated"
     },
     "studio/assets/encode-worker-DlEJKUZa.js": {
       "sha256": "fed6ff633a04adda7af24a3f568260acaf2346c1ae55845f86573cc284488100",
       "class": "generated"
     },
-    "studio/assets/getTexelRangeRects-ZGGf0_hX.js": {
-      "sha256": "151be9d07adcc568ffdb03a31052cf4b130711e5e5b8038a9db500aa6f44aee8",
+    "studio/assets/getTexelRangeRects-CWQktFsC.js": {
+      "sha256": "75ec43c598329dc312efa589233178c4b5543d5c54a74fb53813a86709168ec8",
       "class": "generated"
     },
-    "studio/assets/harness-B_tXN4ri.js": {
-      "sha256": "eaaf078faa01db2c498ba70acc67bcdb5fde3cbc85f858e9573a7ccca6b033d3",
+    "studio/assets/harness-MUIvNGUg.js": {
+      "sha256": "116ebacfd4cbc6c449f21adc4719a8e50cc8e41fb384a3e9c6f938beb34e14de",
       "class": "generated"
     },
-    "studio/assets/index-DitHbukQ.js": {
-      "sha256": "cec7545e226b770c5d96edd740b67df10c17e843ae889a3007bf776d42623389",
+    "studio/assets/index-BqaqRoxO.js": {
+      "sha256": "ad7ddf14ad8a70a1a36c9620da94be88a416959509a33c2ea98a83402df4c5ec",
       "class": "generated"
     },
     "studio/assets/index-LVOg-jrj.js": {
       "sha256": "c2d06c76ae8153f2928c560129ee26ec33bda836fe5367e314b89b5fef2f1c4e",
       "class": "generated"
     },
-    "studio/assets/main-Cl02TcWv.js": {
-      "sha256": "245dc2684e2b12268dfb5bcb6650b858f8d0908d36e701b92b4883bc46987dce",
+    "studio/assets/main-QbGBV1cJ.js": {
+      "sha256": "5d851f8c5f6d2444a9508a84587bf57de2c0e686de2c0b484916ecdfd05d6832",
       "class": "generated"
     },
-    "studio/assets/main-DU727PLh.css": {
-      "sha256": "b97b0de08a26e15262b42617e1747b427cd3b00968cbcafe09772a26436c5773",
+    "studio/assets/main-efOIi7On.css": {
+      "sha256": "54388feca7d98b1a7cde4b3861988d4d980efcf9e9f7d8a1b3e2b331297df766",
       "class": "generated"
     },
-    "studio/assets/selftest-D-d5AXXk.js": {
-      "sha256": "998c8d89eec6d4d6550b2ce2562e701f5e5658ae1940fcb7ec59bcfb19d88f13",
+    "studio/assets/selftest-DWdB6z3c.js": {
+      "sha256": "b364c8279443b13ef649190ad79a99523a76a164bf40569e7cc773560b3f1a74",
       "class": "generated"
     },
-    "studio/assets/store-BdwvN7gR.js": {
-      "sha256": "8673b9c78838745a1ce4d4cd59d687e242a8c6154c878a594d176f8f002af443",
+    "studio/assets/store-CXZ_8NM4.js": {
+      "sha256": "6c8a149ff80297aaf713a0059eb152108757511432b7994f711bf9791e055154",
       "class": "generated"
     },
-    "studio/assets/webworkerAll-DPeRCgm2.js": {
-      "sha256": "85f37af1326b83f74091faa78a9588f81c8cad2d6dab593a0da8c0f4de3d1962",
+    "studio/assets/webworkerAll-B2YgpztD.js": {
+      "sha256": "1ebf7aa86c1db7fce479f33bb0992e1e20e56e236b6059d8928783cee213cdef",
       "class": "generated"
     },
     "studio/favicon.svg": {
@@ -311,15 +315,15 @@
       "class": "generated"
     },
     "studio/harness.html": {
-      "sha256": "65a9d7a0116e5d5881b0abc367b28a896f175a6f65b2048742e4bdbbcbf41757",
+      "sha256": "018695eb574619907b3148bf408e71bb1662625afe4a0743c2e561c82fa4d0c0",
       "class": "generated"
     },
     "studio/index.html": {
-      "sha256": "08662fbcbe5e9ea6ab41175d44c8c198539b46e0e9a56d145e411fa0b718c937",
+      "sha256": "973126d9b5302b8a311c2c189eb05faf6f3f0357dc8a272c76f9cf543df33fcf",
       "class": "generated"
     },
     "studio/selftest.html": {
-      "sha256": "9f2b81ef9f23b61ab2e1b3ee2935f94b37c062a77892614cdfa8c4664b52cd83",
+      "sha256": "e47bce40b9f5f3d52d581d552e3e7cb19ab3b14691f52105839135214dc0343e",
       "class": "generated"
     },
     "tests/selftest.spec.ts": {

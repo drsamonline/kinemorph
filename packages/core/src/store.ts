@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Project } from './model';
 import { applyCommand, CommandError, type Command } from './commands';
+import { ProjectSchema } from './model';
 import { generateProject, DEMO_STORIES } from './story';
 import { totalDuration } from './timeline';
 
@@ -31,8 +32,10 @@ function load(): Project {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.scenes) && parsed.scenes.length) return parsed as Project;
+      /* parse, do not trust: a project written by an older version, or edited by
+         hand, must not be able to crash the editor */
+      const parsed = ProjectSchema.safeParse(JSON.parse(raw));
+      if (parsed.success) return parsed.data;
     }
   } catch {
     /* a corrupt store should never block the studio */
