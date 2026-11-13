@@ -123,10 +123,20 @@ fonts. Generating baselines where they are checked removes that whole class of f
   Opus; Safari and Edge get AAC. Opus-in-MP4 plays in browsers and VLC, but some desktop editors
   ignore it. The export dialog tells you which one you got. See the
   [guide](docs/guide.md#about-the-audio-codec).
-- **Rendering is still on the main thread.** Encoding and muxing now run in a worker (frames
-  cross as transferable `ImageBitmap`s), so the editor stays responsive during an export, but the
-  WebGL render for each frame still happens on the main thread. Moving the whole renderer into a
-  worker with `OffscreenCanvas` is the next step.
+- **Rendering is still on the main thread.** Encoding and muxing run in a worker (frames cross as
+  transferable `ImageBitmap`s), but the WebGL render for each frame happens on the main thread.
+
+  Moving the renderer into a worker is possible — PixiJS ships `environment-webworker/WebWorkerAdapter`
+  — and it was investigated rather than assumed. Measured on this project's CI-class machine
+  (ANGLE + **SwiftShader**, i.e. software rendering), a 60-frame 720p export takes 52.8s, which is
+  ~880ms per frame with a 1034ms worst main-thread gap. That number is a property of software
+  rendering, not of the architecture: the same frame on a GPU is single-digit milliseconds, where
+  a 10ms freeze per frame is not worth a second rendering path that has to stay in sync with the
+  84 golden frames.
+
+  A cheaper fix was tried and **reverted on evidence**: yielding to the event loop between frames
+  made the same export take 60.5s with a 1509ms worst gap, because a software renderer has no
+  spare CPU to paint with. Re-run the measurement on a GPU machine before deciding.
 - **Collaboration is not implemented.** The command layer is designed for it, but there is no
   transport.
 - **Glitch transition is an approximation**, not a slice-based tear.
