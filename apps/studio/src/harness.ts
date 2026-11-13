@@ -51,8 +51,10 @@ function sceneFor(styleId: (typeof STYLE_LIST)[number]['id'], motif: (typeof MOT
     scenes: [
       {
         id: 's1',
-        title: 'Harness',
-        body: 'A fixed frame for comparison.',
+        /* no text: the signature covers artwork, and text metrics depend on
+           whatever fonts the machine has installed */
+        title: '',
+        body: '',
         motif,
         dur: 6,
         layout: 'split',
