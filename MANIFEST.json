@@ -23,7 +23,7 @@
       "class": "tooling"
     },
     ".github/workflows/ci.yml": {
-      "sha256": "ca74f2710b2a22790a6f00db42c19a1af3362ad0cc3404b2cf78908b38e0ba19",
+      "sha256": "fb9b16a05544634e91dd96f452b1f9a765dc87accedbfbdf5a4b261362dc2afc",
       "class": "tooling"
     },
     ".gitignore": {
@@ -107,7 +107,7 @@
       "class": "source"
     },
     "apps/studio/src/harness.ts": {
-      "sha256": "ef043f4ac6877371033c68b3fdd4ce76947e77d23b52e95e2ceddf46c691e94c",
+      "sha256": "fb02112220610d1a79283e93b45748068a5148074a750d0148a74508fc84b3ed",
       "class": "source"
     },
     "apps/studio/src/main.tsx": {
@@ -274,8 +274,8 @@
       "sha256": "5cfe6a11de687137b220347d8c55b4b768189300f402a4aa2c2b228990cc340e",
       "class": "generated"
     },
-    "studio/assets/harness-Db00R1Og.js": {
-      "sha256": "9cbeb1f18e0b6da7840abfd419c82d8dd862202e78f334e1c2b2d232af1e7602",
+    "studio/assets/harness-CvfAcfCa.js": {
+      "sha256": "4b9432d64071a51966f509a181a5b83fa2cae34bf13bc12d417ce56c1d7a91ed",
       "class": "generated"
     },
     "studio/assets/index-BxDSNOQy.js": {
@@ -311,7 +311,7 @@
       "class": "generated"
     },
     "studio/harness.html": {
-      "sha256": "6eecdee7212fa55dcc99f48d6f3507bd8cce437423b3d33e2c62f2e690a3c680",
+      "sha256": "a9c45226961bd4cb67d49252c2ec4891261abceae12ffb8c33dd502a2e15a39e",
       "class": "generated"
     },
     "studio/index.html": {
@@ -327,7 +327,7 @@
       "class": "hand"
     },
     "tests/signatures.json": {
-      "sha256": "6ac128394a930a858487c9f4328c0112fcca1b5191f2b959a062f990cb30753e",
+      "sha256": "f23fd7ff4de6d8ab61ecad63dffa72c5615c2c05207a0de9429499087a141a20",
       "class": "hand"
     },
     "tests/signatures.spec.ts": {
