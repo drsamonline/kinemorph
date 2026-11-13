@@ -58,7 +58,7 @@ export function ExportPanel({
       setPhase('done');
       setMessage(
         `${result.filename} — ${(result.blob.size / 1e6).toFixed(1)} MB, ${result.width}x${result.height}, ` +
-        `${result.hasAudio ? 'with audio' : 'silent — ' + (result.audioError ?? 'unknown reason')}`
+        `${result.hasAudio ? `with ${result.audioCodec ?? 'audio'} audio` : 'silent — ' + (result.audioError ?? 'unknown reason')}`
       );
     } catch (err) {
       setPhase('error');

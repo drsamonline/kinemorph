@@ -42,7 +42,7 @@ apps/studio ──▶ @kinemorph/renderer ──▶ @kinemorph/core
 | **@kinemorph/core** | Zod-validated project model, Zustand store, serialisable commands with undo/redo, story engine, timeline resolver, motif geometry, colour math. No DOM, no Pixi, no Tone. |
 | **@kinemorph/renderer** | PixiJS compositor. `render(project, time)` draws one frame. Handles styles, camera, entrances and transitions. |
 | **@kinemorph/audio** | Score generator. `buildScore(mood, seconds)` returns note events; Tone.js plays them live, an `OfflineAudioContext` renders them for export. |
-| **@kinemorph/export** | WebCodecs `VideoEncoder` + `mp4-muxer`, with a real-time `MediaRecorder` fallback. |
+| **@kinemorph/export** | Mediabunny for encoding and muxing (it succeeded `mp4-muxer`), with a real-time `MediaRecorder` fallback. |
 | **@kinemorph/studio** | The Vite + React editor. |
 
 ### Three decisions that matter
@@ -119,8 +119,10 @@ fonts. Generating baselines where they are checked removes that whole class of f
 
 ## Known limitations
 
-- **MP4 audio is AAC where available, Opus otherwise.** Opus-in-MP4 plays in browsers and VLC;
-  some desktop editors ignore it. See the [guide](docs/guide.md#about-the-audio-codec).
+- **MP4 audio is AAC where available, Opus otherwise.** Chrome has no AAC encoder, so it gets
+  Opus; Safari and Edge get AAC. Opus-in-MP4 plays in browsers and VLC, but some desktop editors
+  ignore it. The export dialog tells you which one you got. See the
+  [guide](docs/guide.md#about-the-audio-codec).
 - **Rendering is still on the main thread.** Encoding and muxing now run in a worker (frames
   cross as transferable `ImageBitmap`s), so the editor stays responsive during an export, but the
   WebGL render for each frame still happens on the main thread. Moving the whole renderer into a
@@ -128,8 +130,6 @@ fonts. Generating baselines where they are checked removes that whole class of f
 - **Collaboration is not implemented.** The command layer is designed for it, but there is no
   transport.
 - **Glitch transition is an approximation**, not a slice-based tear.
-- `mp4-muxer` is deprecated upstream in favour of Mediabunny; the API used here is stable but
-  the dependency should be migrated.
 
 ---
 

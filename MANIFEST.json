@@ -39,7 +39,7 @@
       "class": "hand"
     },
     "CHANGELOG.md": {
-      "sha256": "ce4719d80b15a7d813daf7cc830466bdbe7bd247f92899159ba32b43c6747b83",
+      "sha256": "5f7b719568d146200955af1b26585902b7064ab8c599358ad10ad68d84c02154",
       "class": "hand"
     },
     "CITATION.cff": {
@@ -63,7 +63,7 @@
       "class": "hand"
     },
     "README.md": {
-      "sha256": "a0e4831de7e4422b70f65cd5fdb88e4564832386f286243d1d989c55b0224f38",
+      "sha256": "eaf7d1172d1d385a517693ee25318e5e767e0188aaa3aaf52ee1be6894bb5dce",
       "class": "hand"
     },
     "SECURITY.md": {
@@ -95,7 +95,7 @@
       "class": "source"
     },
     "apps/studio/src/ExportPanel.tsx": {
-      "sha256": "cf9172f7932477a17de35a86565b3e06de3d527741e32c66ffc0d5d727df87a6",
+      "sha256": "0b531b43a9adb13009c084c08fe38148e3eb1d91b556341fdfb308e868c8a7e0",
       "class": "source"
     },
     "apps/studio/src/Stage.tsx": {
@@ -143,7 +143,7 @@
       "class": "asset"
     },
     "docs/guide.md": {
-      "sha256": "e0c60489b5358adccfb49672b30c20f19ca071522af1fdc7a6f00d41040c84f8",
+      "sha256": "c512a45dbc1cb0b19d037f4727b3deccd4e7071fc3e276fec6ef72def9a29cd1",
       "class": "hand"
     },
     "favicon.svg": {
@@ -159,11 +159,11 @@
       "class": "hand"
     },
     "package-lock.json": {
-      "sha256": "f78246faaa8f613676248e5eee19bceda7198f88721d118fc88ee87eadd35f3a",
+      "sha256": "28c49b8257f46c85c76e979fabecf17f39a20169a2af0e205c775ff2e73825a8",
       "class": "hand"
     },
     "package.json": {
-      "sha256": "c5f3d36e5d296cf270bbf93a76714c4775c1481a43be2cca58b4c215f6f08add",
+      "sha256": "c15df51abeea5730185a331589597e2b0ee8d3464f48170922dd267c15b0c592",
       "class": "hand"
     },
     "packages/audio/package.json": {
@@ -219,11 +219,11 @@
       "class": "source"
     },
     "packages/export/src/encode-worker.ts": {
-      "sha256": "a6eeda84abe9d8968cedb9ece6da8dfd4c9bccddf21ca8fbe253a66ae2f50a86",
+      "sha256": "3da62f00254ca1fd640ff14c9c3e6f2422bea32a839ada6883c16b5f49fd5195",
       "class": "source"
     },
     "packages/export/src/index.ts": {
-      "sha256": "4f45f4807a4dceeec11cba7234d775d53d1b0b71a0d5d582e96b19409261f060",
+      "sha256": "aa79bdfbd595de1772f36ab4af34371efe3c8892dff02722fb6048d1c5c31fb9",
       "class": "source"
     },
     "packages/renderer/package.json": {
@@ -266,8 +266,8 @@
       "sha256": "2ee9bc6d81a4d0c2e69923cfefaf22877cb2949b068cd67b5f50e031b8a7accb",
       "class": "generated"
     },
-    "studio/assets/encode-worker-CdLpNPG-.js": {
-      "sha256": "4f5e072dbc1adc2026767ac58b7826629324540c5608f1413b3d8089812d6717",
+    "studio/assets/encode-worker-Do64WVcK.js": {
+      "sha256": "d52bf9b33d9ddb451cf344bbbb028b0d50a4071a50374d4a2fad36536f94189c",
       "class": "generated"
     },
     "studio/assets/getTexelRangeRects-Dsk6N1_g.js": {
@@ -286,12 +286,12 @@
       "sha256": "c2d06c76ae8153f2928c560129ee26ec33bda836fe5367e314b89b5fef2f1c4e",
       "class": "generated"
     },
-    "studio/assets/main-DssIerY2.css": {
-      "sha256": "974df71294b1a2e48ba24e4aa3dc4eaa66d6e6da37f1020de2ade84b1db3d473",
+    "studio/assets/main-CNXfP8o5.js": {
+      "sha256": "2d6d90ae69e3dca063581d67d50cfabb7e89052cf27fdb8eeb407c5026a2ca40",
       "class": "generated"
     },
-    "studio/assets/main-rIdwLgVa.js": {
-      "sha256": "6f941ccd54cc53352f07e01992bc4fe452eae8ebb4dc78bb13a197923dd265de",
+    "studio/assets/main-DssIerY2.css": {
+      "sha256": "974df71294b1a2e48ba24e4aa3dc4eaa66d6e6da37f1020de2ade84b1db3d473",
       "class": "generated"
     },
     "studio/assets/selftest-qFDWI7ey.js": {
@@ -315,7 +315,7 @@
       "class": "generated"
     },
     "studio/index.html": {
-      "sha256": "b2ee4cb8c3fb043c1c624cb96091e0866993d91c0e25aa9bbeff755eb736b775",
+      "sha256": "ef659ee87bb133b7728c9823553a902395846ac16430d50ca788c4645f55e381",
       "class": "generated"
     },
     "studio/selftest.html": {

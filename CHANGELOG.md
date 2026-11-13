@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0] — 2026-11-13
+
+### Changed
+- **Muxing migrated from `mp4-muxer` to Mediabunny.** The old library is deprecated upstream by
+  its own author. Mediabunny owns the encoder configuration and the container, which removed the
+  manual `VideoEncoder`/`AudioEncoder` wiring, the chunk plumbing and the hand-rolled muxer
+  setup — roughly 150 lines — from both the main-thread and worker paths.
+- **Audio codec is reported.** `ExportResult.audioCodec` says whether the track is AAC or Opus,
+  and the export dialog shows it: "with aac audio" / "with opus audio".
+- Audio samples are closed after encoding (Mediabunny warns on leaked `AudioSample`s).
+
+### Verified
+- 4-second show → 2.2 MB MP4, `vide` + `soun` tracks, Opus audio in headless Chrome (which has no
+  AAC encoder). AAC is tried first and used wherever the browser offers it.
+
 ## [0.3.0] — 2026-11-13
 
 ### Added

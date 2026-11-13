@@ -112,8 +112,8 @@ in browsers without a video encoder, and it still carries the soundtrack.
 
 ### About the audio codec
 
-The MP4 audio track is AAC when the browser supports an AAC encoder (Safari does), and Opus
-otherwise (Chrome). Opus-in-MP4 is valid and plays in browsers and VLC, but some desktop
+The MP4 audio track is AAC when the browser supports an AAC encoder (Safari and Edge do), and
+Opus otherwise (Chrome has no AAC encoder). The export dialog tells you which one you got. Opus-in-MP4 is valid and plays in browsers and VLC, but some desktop
 editors ignore it. If a track shows up silent in Premiere or Final Cut, export from Safari,
 or use the WebM path and convert.
 

@@ -1,39 +1,39 @@
-import { ArrayBufferTarget, Muxer } from 'mp4-muxer';
+import {
+  AudioSample, AudioSampleSource, BufferTarget, CanvasSource, Mp4OutputFormat, Output, Quality
+} from 'mediabunny';
 
 /**
  * Encoding worker.
  *
- * The renderer has to stay on the main thread — that is where the WebGL context
- * lives — but everything after the pixels are grabbed does not. Encoding and
- * muxing move here so the editor keeps painting while a long export runs.
+ * The renderer stays on the main thread — that is where the WebGL context
+ * lives — but everything after the pixels are grabbed happens here: an
+ * OffscreenCanvas receives each frame as a transferable ImageBitmap, and
+ * Mediabunny encodes and muxes it.
  *
- * Frames arrive as transferable ImageBitmaps, which are zero-copy.
+ * Messages are processed strictly in order through a promise chain, so a fast
+ * producer can never reorder frames.
  */
 
-export interface WorkerVideoConfig {
-  codec: string;
-  muxCodec: 'avc' | 'vp9';
+export interface WorkerConfig {
   width: number;
   height: number;
-  bitrate: number;
   fps: number;
-}
-
-export interface WorkerAudioConfig {
-  codec: AudioEncoderConfig;
-  muxCodec: 'aac' | 'opus';
+  bitrate: number;
+  videoCodec: 'avc' | 'vp9';
+  audioCodec: 'aac' | 'opus' | null;
   sampleRate: number;
 }
 
 type InMessage =
-  | { type: 'init'; video: WorkerVideoConfig; audio: WorkerAudioConfig | null }
-  | { type: 'frame'; bitmap: ImageBitmap; timestamp: number; keyFrame: boolean }
+  | { type: 'init'; config: WorkerConfig }
+  | { type: 'frame'; bitmap: ImageBitmap; timestamp: number; duration: number }
   | { type: 'audio'; left: Float32Array; right: Float32Array; sampleRate: number }
   | { type: 'finish' };
 
 type OutMessage =
   | { type: 'progress'; phase: 'video' | 'audio' | 'muxing'; value: number }
-  | { type: 'done'; buffer: ArrayBuffer; hasAudio: boolean; audioError?: string }
+  | { type: 'frame-done' }
+  | { type: 'done'; buffer: ArrayBuffer; hasAudio: boolean }
   | { type: 'error'; message: string };
 
 const scope = self as unknown as {
@@ -41,129 +41,101 @@ const scope = self as unknown as {
   onmessage: ((event: MessageEvent<InMessage>) => void) | null;
 };
 
-let muxer: Muxer<ArrayBufferTarget> | null = null;
-let videoEncoder: VideoEncoder | null = null;
-let audioEncoder: AudioEncoder | null = null;
-let failure: Error | null = null;
-let framesEncoded = 0;
+let output: Output | null = null;
+let videoSource: CanvasSource | null = null;
+let audioSource: AudioSampleSource | null = null;
+let surface: OffscreenCanvas | null = null;
+let surfaceCtx: OffscreenCanvasRenderingContext2D | null = null;
+let config: WorkerConfig | null = null;
 let audioDone = false;
 
-function send(message: OutMessage, transfer?: Transferable[]): void {
-  scope.postMessage(message, transfer);
-}
+const send = (message: OutMessage, transfer?: Transferable[]) => scope.postMessage(message, transfer);
 
-scope.onmessage = async (event: MessageEvent<InMessage>) => {
-  const message = event.data;
+async function handle(message: InMessage): Promise<void> {
+  if (message.type === 'init') {
+    config = message.config;
+    surface = new OffscreenCanvas(config.width, config.height);
+    const ctx = surface.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('no 2d context in the worker');
+    surfaceCtx = ctx as OffscreenCanvasRenderingContext2D;
+    surfaceCtx.imageSmoothingEnabled = true;
+    surfaceCtx.imageSmoothingQuality = 'high';
 
-  try {
-    if (message.type === 'init') {
-      muxer = new Muxer({
-        target: new ArrayBufferTarget(),
-        video: {
-          codec: message.video.muxCodec,
-          width: message.video.width,
-          height: message.video.height,
-          frameRate: message.video.fps
-        },
-        audio: message.audio
-          ? {
-              codec: message.audio.muxCodec,
-              sampleRate: message.audio.sampleRate,
-              numberOfChannels: 2
-            }
-          : undefined,
-        fastStart: 'in-memory'
+    output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+    videoSource = new CanvasSource(surface, {
+      codec: config.videoCodec,
+      quality: new Quality({ bitrate: config.bitrate })
+    });
+    output.addVideoTrack(videoSource, { frameRate: config.fps });
+
+    if (config.audioCodec) {
+      audioSource = new AudioSampleSource({
+        codec: config.audioCodec,
+        quality: new Quality({ bitrate: 128_000 })
       });
+      output.addAudioTrack(audioSource);
+    }
 
-      videoEncoder = new VideoEncoder({
-        output: (chunk, meta) => {
-          try { muxer?.addVideoChunk(chunk, meta); } catch (err) { failure = err as Error; }
-        },
-        error: (err) => { failure = err; }
-      });
-      videoEncoder.configure({
-        codec: message.video.codec,
-        width: message.video.width,
-        height: message.video.height,
-        bitrate: message.video.bitrate,
-        framerate: message.video.fps
-      });
+    await output.start();
+    return;
+  }
 
-      if (message.audio) {
-        audioEncoder = new AudioEncoder({
-          output: (chunk, meta) => {
-            try { muxer?.addAudioChunk(chunk, meta); } catch (err) { failure = err as Error; }
-          },
-          error: (err) => { failure = err; }
-        });
-        audioEncoder.configure(message.audio.codec);
+  if (message.type === 'frame') {
+    if (!videoSource || !surfaceCtx) throw new Error('worker not initialised');
+    surfaceCtx.drawImage(message.bitmap, 0, 0);
+    message.bitmap.close();
+    await videoSource.add(message.timestamp, message.duration);
+    send({ type: 'frame-done' });
+    return;
+  }
+
+  if (message.type === 'audio') {
+    if (!audioSource) return;
+    send({ type: 'progress', phase: 'audio', value: 0 });
+    const total = message.left.length;
+    const chunk = 4096;
+    for (let offset = 0; offset < total; offset += chunk) {
+      const count = Math.min(chunk, total - offset);
+      const interleaved = new Float32Array(count * 2);
+      for (let i = 0; i < count; i++) {
+        interleaved[i * 2] = message.left[offset + i];
+        interleaved[i * 2 + 1] = message.right[offset + i];
       }
-      return;
-    }
-
-    if (message.type === 'frame') {
-      if (failure) throw failure;
-      if (!videoEncoder) throw new Error('encoder not configured');
-      const frame = new VideoFrame(message.bitmap, {
-        timestamp: message.timestamp,
-        duration: Math.round(1e6 / 30)
-      });
-      videoEncoder.encode(frame, { keyFrame: message.keyFrame });
-      frame.close();
-      message.bitmap.close();
-      framesEncoded++;
-      if (framesEncoded % 8 === 0) send({ type: 'progress', phase: 'video', value: framesEncoded });
-      return;
-    }
-
-    if (message.type === 'audio') {
-      /* encoded on the main thread hand-off so the worker stays simple */
-      const total = message.left.length;
-      if (!audioEncoder) throw new Error('audio encoder not configured');
-      const chunk = 4096;
-      for (let offset = 0; offset < total; offset += chunk) {
-        const count = Math.min(chunk, total - offset);
-        const interleaved = new Float32Array(count * 2);
-        for (let i = 0; i < count; i++) {
-          interleaved[i * 2] = message.left[offset + i];
-          interleaved[i * 2 + 1] = message.right[offset + i];
-        }
-        const data = new AudioData({
+      const sample = new AudioSample(
+        new AudioData({
           format: 'f32',
           sampleRate: message.sampleRate,
           numberOfFrames: count,
           numberOfChannels: 2,
           timestamp: Math.round((offset / message.sampleRate) * 1e6),
           data: interleaved
-        });
-        audioEncoder.encode(data);
-        data.close();
-        if (audioEncoder.encodeQueueSize > 16) {
-          await new Promise((resolve) => setTimeout(resolve, 0));
-        }
-      }
-      await audioEncoder.flush();
-      audioEncoder.close();
-      audioEncoder = null;
-      audioDone = true;
-      send({ type: 'progress', phase: 'audio', value: 1 });
-      return;
+        })
+      );
+      await audioSource.add(sample);
+      sample.close();
     }
-
-    if (message.type === 'finish') {
-      if (failure) throw failure;
-      await videoEncoder?.flush();
-      videoEncoder?.close();
-      videoEncoder = null;
-      if (!muxer) throw new Error('nothing to finish');
-      send({ type: 'progress', phase: 'muxing', value: 0 });
-      muxer.finalize();
-      const buffer = (muxer.target as ArrayBufferTarget).buffer;
-      muxer = null;
-      send({ type: 'progress', phase: 'muxing', value: 1 });
-      send({ type: 'done', buffer, hasAudio: audioDone }, [buffer]);
-    }
-  } catch (err) {
-    send({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    audioDone = true;
+    send({ type: 'progress', phase: 'audio', value: 1 });
+    return;
   }
+
+  if (message.type === 'finish') {
+    if (!output) throw new Error('nothing to finish');
+    send({ type: 'progress', phase: 'muxing', value: 0 });
+    await output.finalize();
+    const buffer = (output.target as BufferTarget).buffer;
+    if (!buffer) throw new Error('the muxer produced no data');
+    send({ type: 'progress', phase: 'muxing', value: 1 });
+    send({ type: 'done', buffer, hasAudio: audioDone }, [buffer]);
+  }
+}
+
+/* one message at a time, in order */
+let chain: Promise<void> = Promise.resolve();
+scope.onmessage = (event: MessageEvent<InMessage>) => {
+  chain = chain
+    .then(() => handle(event.data))
+    .catch((err: unknown) => {
+      send({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    });
 };
