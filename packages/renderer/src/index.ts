@@ -1,0 +1,606 @@
+import { Application, BlurFilter, Container, Graphics, Text, TextStyle } from 'pixi.js';
+import {
+  EASES, MOTIF_LABELS, STYLES, clamp, contrastRatio, ensureContrast, lerp,
+  morphPoints, motifPoints, resolveFrame, sceneDuration,
+  type Frame, type MotifId, type Project, type Pt, type Scene, type StyleDef
+} from '@kinemorph/core';
+
+/**
+ * PixiJS compositor.
+ *
+ * Two decisions carry the whole look:
+ *
+ * 1. The renderer's backing store is the style's native resolution (480x270 for
+ *    Pixel Arcade, 1920x1080 for the clean ones) and the stage is scaled from
+ *    1920x1080 design units into it. Pixel styles therefore *are* low-res, not
+ *    a filter pretending to be.
+ * 2. Rendering is a pure function of (project, time). `render()` never advances
+ *    a clock, so the preview, the scrubber and the frame-exact export all share
+ *    one path — which is what makes the exported video match what you saw.
+ */
+
+const DESIGN_W = 1920;
+const DESIGN_H = 1080;
+
+const hex = (value: string): number => parseInt(value.replace('#', ''), 16);
+
+interface TextBlock {
+  container: Container;
+  title: Text;
+  body: Text;
+  blur: BlurFilter;
+}
+
+export interface RendererOptions {
+  antialias?: boolean;
+  backgroundAlpha?: number;
+}
+
+export class SceneRenderer {
+  readonly app = new Application();
+  private root = new Container();
+  private layerA = new Container();
+  private layerB = new Container();
+  private views = new Map<string, SceneView>();
+  private style: StyleDef = STYLES.neon;
+  private ready = false;
+  private lastStyleId = '';
+
+  async init(options: RendererOptions = {}): Promise<void> {
+    await this.app.init({
+      width: this.style.width,
+      height: this.style.height,
+      backgroundAlpha: options.backgroundAlpha ?? 1,
+      backgroundColor: hex(this.style.palette.bg),
+      antialias: options.antialias ?? this.style.smooth,
+      preference: 'webgl',
+      autoDensity: false,
+      resolution: 1,
+      powerPreference: 'high-performance'
+    });
+    this.app.ticker?.stop();
+    this.app.stage.addChild(this.root);
+    this.root.addChild(this.layerA, this.layerB);
+    this.ready = true;
+    this.applyStageScale();
+  }
+
+  get canvas(): HTMLCanvasElement {
+    return this.app.canvas as HTMLCanvasElement;
+  }
+
+  mount(element: HTMLElement): void {
+    const canvas = this.canvas;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.objectFit = 'contain';
+    canvas.style.display = 'block';
+    canvas.style.imageRendering = this.style.smooth ? 'auto' : 'pixelated';
+    element.appendChild(canvas);
+  }
+
+  private applyStageScale(): void {
+    const scale = this.style.width / DESIGN_W;
+    this.root.scale.set(scale);
+    this.root.position.set(0, 0);
+  }
+
+  setStyle(style: StyleDef): void {
+    if (style.id === this.lastStyleId) return;
+    this.lastStyleId = style.id;
+    this.style = style;
+    if (!this.ready) return;
+    this.app.renderer.resize(style.width, style.height);
+    this.app.renderer.background.color = hex(style.palette.bg);
+    this.applyStageScale();
+    const canvas = this.canvas;
+    canvas.style.imageRendering = style.smooth ? 'auto' : 'pixelated';
+    /* text metrics change with the style's fonts, so drop the cached views */
+    this.views.clear();
+    this.layerA.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.layerB.removeChildren().forEach((c) => c.destroy({ children: true }));
+  }
+
+  private view(scene: Scene): SceneView {
+    let v = this.views.get(scene.id);
+    if (!v) {
+      v = new SceneView(scene);
+      this.views.set(scene.id, v);
+    }
+    return v;
+  }
+
+  /** Draw the project at an absolute time, in seconds. */
+  render(project: Project, time: number): Frame | null {
+    if (!this.ready) return null;
+    this.setStyle(STYLES[project.style] ?? STYLES.neon);
+
+    const frame = resolveFrame(project, time);
+    if (!frame) return null;
+
+    this.layerA.removeChildren();
+    this.layerB.removeChildren();
+    this.layerA.alpha = 1;
+    this.layerB.alpha = 1;
+    this.layerA.position.set(0, 0);
+    this.layerB.position.set(0, 0);
+    this.layerA.mask = null;
+    this.layerB.mask = null;
+
+    const style = this.style;
+    const viewA = this.view(frame.cue.scene);
+    viewA.update(frame.cue.scene, style, frame.local);
+    this.layerA.addChild(viewA.container);
+
+    if (frame.next && frame.transitionProgress !== null) {
+      const p = frame.transitionProgress;
+      const nextScene = frame.next.scene;
+      if (frame.transition === 'morph') {
+        this.composeMorph(viewA, nextScene, style, p, frame);
+      } else {
+        const viewB = this.view(nextScene);
+        viewB.update(nextScene, style, Math.max(0, frame.local - (sceneDuration(frame.cue.scene) - frame.transitionDuration)));
+        this.layerB.addChild(viewB.container);
+        this.composeTransition(frame.transition, p, style);
+      }
+    }
+
+    this.app.renderer.render(this.app.stage);
+    return frame;
+  }
+
+  /** Morph is composited inside one scene view: background of B, geometry in flight. */
+  private composeMorph(from: SceneView, to: Scene, style: StyleDef, p: number, frame: Frame): void {
+    const e = EASES.inOut(p);
+    /* start from B's background so the frame does not flash */
+    from.drawBackground(style, frame.local);
+    from.morphTo(to, style, e, frame.local);
+    if (p > 0.5) {
+      from.setTextsFrom(to, p);
+      const incoming = clamp((p - 0.5) * 2.6, 0, 1);
+      from.setTextAlpha(incoming, incoming);
+    } else {
+      const outgoing = clamp(1 - e * 2, 0, 1);
+      from.setTextAlpha(outgoing, outgoing);
+    }
+  }
+
+  private composeTransition(kind: Frame['transition'], p: number, style: StyleDef): void {
+    const e = EASES.inOut(p);
+    switch (kind) {
+      case 'fade':
+        this.layerB.alpha = e;
+        break;
+      case 'slide':
+        this.layerA.position.x = -e * DESIGN_W;
+        this.layerB.position.x = (1 - e) * DESIGN_W;
+        break;
+      case 'wipe': {
+        const mask = new Graphics().rect(0, 0, DESIGN_W * e, DESIGN_H).fill(0xffffff);
+        this.layerB.addChild(mask);
+        this.layerB.mask = mask;
+        break;
+      }
+      case 'iris': {
+        const mask = new Graphics()
+          .circle(DESIGN_W / 2, DESIGN_H / 2, e * DESIGN_W * 0.78)
+          .fill(0xffffff);
+        this.layerB.addChild(mask);
+        this.layerB.mask = mask;
+        break;
+      }
+      case 'glitch': {
+        /* cheap approximation: the outgoing scene jitters, the incoming one fades */
+        const jitter = (1 - Math.abs(p - 0.5) * 2) * 60;
+        this.layerA.position.x = Math.sin(p * 40) * jitter;
+        this.layerA.alpha = 1 - e;
+        this.layerB.alpha = e;
+        break;
+      }
+      default:
+        this.layerB.alpha = e;
+    }
+    void style;
+  }
+
+  destroy(): void {
+    this.views.clear();
+    this.app.destroy(true, { children: true });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* A single scene, drawn into its own container                        */
+/* ------------------------------------------------------------------ */
+
+class SceneView {
+  readonly container = new Container();
+  private bg = new Graphics();
+  private motif = new Graphics();
+  private detail = new Graphics();
+  private textLayer: TextBlock;
+  private sceneId: string;
+  private titleText = '';
+  private bodyText = '';
+  private blurEnabled = false;
+
+  constructor(scene: Scene) {
+    this.sceneId = scene.id;
+    this.container.addChild(this.bg, this.motif, this.detail);
+    this.textLayer = SceneView.makeTextBlock();
+    this.container.addChild(this.textLayer.container);
+  }
+
+  private static makeTextBlock(): TextBlock {
+    const container = new Container();
+    const blur = new BlurFilter({ strength: 0 });
+    const title = new Text({
+      text: '',
+      style: new TextStyle({
+        fontFamily: 'system-ui',
+        fontSize: 96,
+        fontWeight: '700',
+        fill: '#ffffff',
+        align: 'left',
+        wordWrap: true,
+        wordWrapWidth: 800,
+        lineHeight: 104
+      })
+    });
+    const body = new Text({
+      text: '',
+      style: new TextStyle({
+        fontFamily: 'system-ui',
+        fontSize: 38,
+        fontWeight: '400',
+        fill: '#ffffff',
+        align: 'left',
+        wordWrap: true,
+        wordWrapWidth: 780,
+        lineHeight: 58
+      })
+    });
+    container.addChild(title, body);
+    return { container, title, body, blur };
+  }
+
+  private isCenter(scene: Scene): boolean {
+    return scene.layout === 'center';
+  }
+
+  drawBackground(style: StyleDef, t: number): void {
+    const g = this.bg;
+    const p = style.palette;
+    g.clear();
+    g.rect(0, 0, DESIGN_W, DESIGN_H).fill(hex(p.bg));
+
+    switch (style.background) {
+      case 'stars': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H * 0.62).fill(hex(p.bg2));
+        let seed = 7;
+        for (let i = 0; i < 40; i++) {
+          seed = (seed * 16807) % 2147483647;
+          const x = Math.floor(((seed % 1000) / 1000) * DESIGN_W);
+          seed = (seed * 16807) % 2147483647;
+          const y = Math.floor(((seed % 1000) / 1000) * DESIGN_H * 0.55);
+          const s = 8 + (i % 3) * 8;
+          g.rect(x, y, s, s).fill({ color: hex(p.ink), alpha: 0.35 + 0.4 * Math.abs(Math.sin(t * 1.6 + i)) });
+        }
+        g.rect(0, DESIGN_H * 0.84, DESIGN_W, DESIGN_H * 0.16).fill(hex(p.dim));
+        break;
+      }
+      case 'ruled': {
+        for (let i = 1; i < 14; i++) {
+          g.rect(0, i * 78, DESIGN_W, 2).fill({ color: hex(p.ink), alpha: 0.07 });
+        }
+        g.rect(90, 0, 3, DESIGN_H).fill({ color: hex(p.ink), alpha: 0.12 });
+        break;
+      }
+      case 'grid': {
+        g.circle(DESIGN_W * 0.72, DESIGN_H * 0.45, 620).fill({ color: 0x3a1f6e, alpha: 0.35 });
+        for (let i = 0; i < 12; i++) {
+          const y = DESIGN_H * 0.62 + Math.pow(i / 11, 2) * DESIGN_H * 0.45;
+          g.rect(0, y, DESIGN_W, 2).fill({ color: 0x7a5aff, alpha: 0.3 });
+        }
+        for (let i = -10; i <= 10; i++) {
+          g.moveTo(DESIGN_W / 2 + i * 60, DESIGN_H * 0.62)
+            .lineTo(DESIGN_W / 2 + i * 320, DESIGN_H)
+            .stroke({ width: 2, color: 0x7a5aff, alpha: 0.3 });
+        }
+        break;
+      }
+      case 'paper': {
+        g.circle(DESIGN_W * 0.78, DESIGN_H * 0.2, 420).fill(hex(p.bg2));
+        g.moveTo(0, DESIGN_H * 0.86)
+          .quadraticCurveTo(DESIGN_W * 0.5, DESIGN_H * 0.76, DESIGN_W, DESIGN_H * 0.9)
+          .lineTo(DESIGN_W, DESIGN_H).lineTo(0, DESIGN_H)
+          .fill({ color: 0xffffff, alpha: 0.35 });
+        break;
+      }
+      case 'space': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H).fill({ color: hex(p.bg2), alpha: 0.55 });
+        let seed = 23;
+        for (let i = 0; i < 130; i++) {
+          seed = (seed * 16807) % 2147483647;
+          const x = ((seed % 1000) / 1000) * DESIGN_W;
+          seed = (seed * 16807) % 2147483647;
+          const y = ((seed % 1000) / 1000) * DESIGN_H;
+          g.circle(x, y, 1 + (i % 3) * 0.6).fill({ color: 0xffffff, alpha: 0.25 + 0.6 * Math.abs(Math.sin(t * 0.9 + i * 0.7)) });
+        }
+        break;
+      }
+      case 'sunset': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H * 0.72).fill(hex('#7a1266'));
+        g.circle(DESIGN_W / 2, DESIGN_H * 0.6, 200).fill({ color: 0xffdc78, alpha: 0.55 });
+        g.rect(0, DESIGN_H * 0.72, DESIGN_W, DESIGN_H * 0.28).fill(hex(p.bg));
+        for (let i = 0; i < 10; i++) {
+          const y = DESIGN_H * 0.72 + Math.pow(i / 9, 2) * DESIGN_H * 0.28;
+          g.rect(0, y, DESIGN_W, 2).fill({ color: 0x00e5ff, alpha: 0.5 });
+        }
+        for (let i = -8; i <= 8; i++) {
+          g.moveTo(DESIGN_W / 2 + i * 40, DESIGN_H * 0.72)
+            .lineTo(DESIGN_W / 2 + i * 210, DESIGN_H)
+            .stroke({ width: 2, color: 0x00e5ff, alpha: 0.45 });
+        }
+        break;
+      }
+    }
+  }
+
+  private motifGeometry(points: Pt[], cx: number, cy: number, r: number, rot: number): number[] {
+    const cos = Math.cos(rot);
+    const sin = Math.sin(rot);
+    const flat: number[] = [];
+    for (const p of points) {
+      const x = p.x * r;
+      const y = p.y * r;
+      flat.push(cx + x * cos - y * sin, cy + x * sin + y * cos);
+    }
+    return flat;
+  }
+
+  drawMotif(
+    points: Pt[],
+    style: StyleDef,
+    accent: string,
+    cx: number,
+    cy: number,
+    r: number,
+    rot: number,
+    alpha: number
+  ): void {
+    const g = this.motif;
+    g.clear();
+    const color = hex(accent);
+    const flat = this.motifGeometry(points, cx, cy, r, rot);
+
+    switch (style.id) {
+      case 'pixel':
+        g.poly(flat).fill({ color, alpha });
+        g.poly(this.motifGeometry(points, cx, cy, r * 0.9, rot)).fill({ color: 0xffffff, alpha: alpha * 0.22 });
+        break;
+      case 'stick':
+        g.poly(flat).stroke({ width: 8, color: hex(style.palette.ink), alpha, join: 'round' });
+        g.poly(flat).stroke({ width: 8, color, alpha: alpha * 0.9, join: 'round' });
+        break;
+      case 'neon': {
+        /* layered strokes read as a glow without paying for a blur filter */
+        g.poly(flat).stroke({ width: 26, color, alpha: alpha * 0.14, join: 'round' });
+        g.poly(flat).stroke({ width: 14, color, alpha: alpha * 0.3, join: 'round' });
+        g.poly(flat).stroke({ width: 6, color, alpha, join: 'round' });
+        g.poly(flat).stroke({ width: 2, color: 0xffffff, alpha: alpha * 0.9, join: 'round' });
+        break;
+      }
+      case 'paper':
+        g.poly(this.motifGeometry(points, cx + 8, cy + 12, r, rot)).fill({ color: 0x000000, alpha: alpha * 0.14 });
+        g.poly(flat).fill({ color, alpha });
+        g.poly(this.motifGeometry(points, cx, cy, r * 0.82, rot)).fill({ color: 0xffffff, alpha: alpha * 0.16 });
+        break;
+      case 'cosmic':
+        g.poly(this.motifGeometry(points, cx, cy, r * 1.02, rot)).fill({ color, alpha: alpha * 0.16 });
+        g.poly(flat).fill({ color, alpha: alpha * 0.92 });
+        g.poly(flat).stroke({ width: 2, color: 0xffffff, alpha: alpha * 0.5, join: 'round' });
+        break;
+      case 'vhs':
+        g.poly(this.motifGeometry(points, cx + 7, cy, r, rot)).fill({ color: 0x00e5ff, alpha: alpha * 0.8 });
+        g.poly(this.motifGeometry(points, cx - 7, cy, r, rot)).fill({ color: 0xff2e88, alpha: alpha * 0.8 });
+        g.poly(flat).fill({ color, alpha });
+        break;
+    }
+  }
+
+  private drawDetail(scene: Scene, style: StyleDef, accent: string, cx: number, cy: number, r: number, t: number): void {
+    const g = this.detail;
+    g.clear();
+    if (this.isCenter(scene)) return;
+    const ink = style.id === 'neon' ? accent : style.palette.ink;
+
+    if (scene.motif === 'planet') {
+      g.ellipse(cx, cy, r * 1.5, r * 0.34).stroke({ width: 4, color: hex(ink), alpha: 0.85 });
+    } else if (scene.motif === 'sun' || scene.motif === 'star') {
+      for (let i = 0; i < 5; i++) {
+        const a = t * 0.6 + i * 1.257;
+        g.circle(cx + Math.cos(a) * r * 1.35, cy + Math.sin(a) * r * 1.35, 4).fill({ color: hex(ink), alpha: 0.5 });
+      }
+    } else if (scene.motif === 'rocket') {
+      const flame = 0.7 + 0.3 * Math.sin(t * 12);
+      g.poly([
+        cx - r * 0.18, cy + r * 0.72,
+        cx, cy + r * (0.72 + 0.5 * flame),
+        cx + r * 0.18, cy + r * 0.72
+      ]).fill({ color: hex(ink), alpha: 0.7 });
+    }
+  }
+
+  update(scene: Scene, style: StyleDef, t: number): void {
+    this.sceneId = scene.id;
+    this.currentMotif = scene.motif;
+    const accent = ensureContrast(scene.accent, style.palette.bg, 3);
+    this.currentAccent = accent;
+    const cam = this.camera(scene, t);
+
+    /* the camera moves the whole frame, background included */
+    this.container.pivot.set(DESIGN_W / 2, DESIGN_H / 2);
+    this.container.position.set(DESIGN_W / 2 + cam.x, DESIGN_H / 2 + cam.y);
+    this.container.scale.set(cam.z);
+
+    this.drawBackground(style, t);
+
+    const center = this.isCenter(scene);
+    const cx = center ? DESIGN_W / 2 : 1390;
+    const cy = center ? 520 : 560;
+    const baseR = center ? 400 : 300;
+    const ease = EASES[scene.ease] ?? EASES.back;
+    const enter = ease(clamp(t / 0.9, 0, 1));
+    const r = baseR * (0.55 + 0.45 * enter);
+    const bob = Math.sin(t * 1.1) * (center ? 10 : 14);
+    const rot = Math.sin(t * 0.35) * 0.06;
+
+    this.drawMotif(motifPoints(scene.motif), style, accent, cx, cy + bob, r, rot, center ? 0.22 : 1);
+    this.drawDetail(scene, style, accent, cx, cy + bob, r, t);
+
+    this.layoutText(scene, style, accent, t, enter);
+  }
+
+  private camera(scene: Scene, t: number): { z: number; x: number; y: number } {
+    if (scene.cam === 'none') return { z: 1, x: 0, y: 0 };
+    const p = clamp(t / Math.max(1, sceneDuration(scene)), 0, 1);
+    const e = EASES.inOut(p);
+    if (scene.cam === 'out') return { z: 1.07 - 0.07 * e, x: 0, y: 0 };
+    if (scene.cam === 'pan') return { z: 1.05, x: lerp(-28, 28, e), y: 0 };
+    return { z: 1 + 0.07 * e, x: 0, y: 0 };
+  }
+
+  private layoutText(scene: Scene, style: StyleDef, accent: string, t: number, enter: number): void {
+    const center = this.isCenter(scene);
+    const { title, body, container } = this.textLayer;
+    const maxW = center ? 1360 : 800;
+    const left = center ? (DESIGN_W - maxW) / 2 : 130;
+
+    if (this.titleText !== scene.title) {
+      title.text = scene.title;
+      this.titleText = scene.title;
+    }
+    if (this.bodyText !== scene.body) {
+      body.text = scene.body;
+      this.bodyText = scene.body;
+    }
+
+    const displayFont = style.font.display;
+    title.style.fontFamily = displayFont;
+    title.style.fontWeight = style.font.weightDisplay as TextStyle['fontWeight'];
+    title.style.letterSpacing = style.font.spacing;
+    title.style.wordWrapWidth = maxW;
+    title.style.align = center ? 'center' : 'left';
+    title.style.fill = style.id === 'neon' ? style.palette.ink : style.palette.ink;
+
+    body.style.fontFamily = style.font.body;
+    body.style.fontWeight = style.font.weightBody as TextStyle['fontWeight'];
+    body.style.wordWrapWidth = center ? 1180 : 760;
+    body.style.align = center ? 'center' : 'left';
+    body.style.fill = style.id === 'stick' || style.id === 'paper' ? '#2a2a33' : 'rgba(240,244,255,0.88)';
+
+    /* fit the title into two lines */
+    let size = center ? 118 : 96;
+    for (let guard = 0; guard < 14; guard++) {
+      title.style.fontSize = size;
+      title.style.lineHeight = Math.round(size * 1.08);
+      if (title.height <= title.style.lineHeight * 2.05 || size <= 44) break;
+      size -= 6;
+    }
+
+    const titleY = center ? 470 - title.height / 2 : 300;
+    title.position.set(left, titleY);
+    title.anchor.set(0, 0);
+
+    /* word-by-word body reveal */
+    const words = (scene.body || '').split(/\s+/).filter(Boolean);
+    const revealStart = center ? 0.55 : 0.62;
+    const shown = Math.floor(clamp((t - revealStart) / 0.09, 0, 9999));
+    const visible = words.slice(0, Math.min(words.length, shown)).join(' ');
+    if (body.text !== visible) body.text = visible;
+
+    body.style.fontSize = center ? 40 : 38;
+    body.style.lineHeight = Math.round((center ? 40 : 38) * 1.55);
+    body.position.set(left, titleY + title.height + (center ? 60 : 90));
+
+    /* entrance transform */
+    let dx = 0, dy = 0, sx = 1, sy = 1, blur = 0;
+    switch (scene.enter) {
+      case 'fade': break;
+      case 'zoom': sx = sy = lerp(1.18, 1, enter); break;
+      case 'slide': dx = (1 - enter) * 150; break;
+      case 'slideR': dx = -(1 - enter) * 150; break;
+      case 'drop': dy = -(1 - enter) * 120; break;
+      case 'flip': sy = Math.max(0.02, enter); break;
+      case 'blur': blur = (1 - enter) * 14; break;
+      case 'pop': sx = sy = lerp(0.62, 1, enter); break;
+      case 'none': break;
+      default: dy = (1 - enter) * 52;
+    }
+
+    const anchorX = center ? DESIGN_W / 2 : left + 380;
+    const anchorY = center ? DESIGN_H * 0.5 : 370;
+    container.pivot.set(anchorX, anchorY);
+    container.position.set(anchorX + dx, anchorY + dy);
+    container.scale.set(sx, sy);
+    container.alpha = clamp(enter * 1.6, 0, 1);
+
+    if (blur > 0.3) {
+      if (!this.blurEnabled) { container.filters = [this.textLayer.blur]; this.blurEnabled = true; }
+      this.textLayer.blur.strength = blur;
+    } else if (this.blurEnabled) {
+      container.filters = null;
+      this.blurEnabled = false;
+    }
+
+    if (style.id === 'vhs') {
+      /* chromatic split, faked with a coloured shadow */
+      title.style.dropShadow = { color: '#ff2e88', alpha: 0.45, blur: 0, distance: 3, angle: 0 };
+    } else if (style.id === 'neon') {
+      title.style.dropShadow = { color: accent, alpha: 0.55, blur: 18, distance: 0, angle: 0 };
+    }
+  }
+
+  /* ---- morph support ---- */
+
+  morphTo(to: Scene, style: StyleDef, e: number, t: number): void {
+    const accent = ensureContrast(e < 0.5 ? this.currentAccent ?? to.accent : to.accent, style.palette.bg, 3);
+    const fromCenter = false;
+    const cx = lerp(fromCenter ? DESIGN_W / 2 : 1390, to.layout === 'center' ? DESIGN_W / 2 : 1390, e);
+    const cy = lerp(560, to.layout === 'center' ? 520 : 560, e);
+    const r = lerp(300, to.layout === 'center' ? 400 : 300, e);
+    const points = morphPoints(this.currentMotif ?? 'sun', to.motif, e);
+    this.drawMotif(points, style, accent, cx, cy, r, lerp(0, 0.5, e), 1);
+    this.detail.clear();
+    void t;
+  }
+
+  setTextAlpha(titleAlpha: number, bodyAlpha: number): void {
+    this.textLayer.title.alpha = titleAlpha;
+    this.textLayer.body.alpha = bodyAlpha;
+  }
+
+  setTextsFrom(to: Scene, p: number): void {
+    if (p > 0.5) {
+      this.textLayer.title.text = to.title;
+      this.textLayer.body.text = to.body;
+      this.titleText = to.title;
+      this.bodyText = to.body;
+    }
+  }
+
+  currentMotif: MotifId | null = null;
+  currentAccent: string | null = null;
+
+  destroy(): void {
+    this.container.destroy({ children: true });
+  }
+
+  get id(): string {
+    return this.sceneId;
+  }
+}
+
+/* re-exported so the studio can show a live contrast readout */
+export { contrastRatio, MOTIF_LABELS };

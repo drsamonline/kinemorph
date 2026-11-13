@@ -1,0 +1,64 @@
+import { z } from 'zod';
+
+/**
+ * The project is the single source of truth. Everything downstream — renderer,
+ * score, export — is a pure function of (project, time). No renderer state is
+ * allowed to leak back into the model, which is what makes deterministic export
+ * possible: the same project at the same time always produces the same frame.
+ */
+
+export const STYLE_IDS = ['pixel', 'stick', 'neon', 'paper', 'cosmic', 'vhs'] as const;
+export const MOTIF_IDS = [
+  'sun', 'moon', 'mountain', 'tree', 'city', 'wave',
+  'cloud', 'star', 'rocket', 'bulb', 'heart', 'book', 'planet', 'spiral'
+] as const;
+export const TRANSITION_IDS = ['morph', 'fade', 'slide', 'wipe', 'iris', 'glitch', 'none'] as const;
+export const ENTER_IDS = ['rise', 'fade', 'zoom', 'slide', 'slideR', 'drop', 'flip', 'blur', 'pop', 'none'] as const;
+export const EASE_IDS = ['linear', 'out', 'inOut', 'back', 'expo', 'elastic', 'bounce', 'spring'] as const;
+export const CAM_IDS = ['in', 'out', 'pan', 'none'] as const;
+export const MOOD_IDS = ['uplifting', 'calm', 'epic', 'playful', 'tense', 'lofi', 'none'] as const;
+
+export const SceneSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().max(120).default(''),
+  body: z.string().max(400).default(''),
+  motif: z.enum(MOTIF_IDS).default('sun'),
+  dur: z.number().min(1).max(30).default(5),
+  layout: z.enum(['split', 'center']).default('split'),
+  transition: z.enum(TRANSITION_IDS).default('morph'),
+  enter: z.enum(ENTER_IDS).default('rise'),
+  ease: z.enum(EASE_IDS).default('back'),
+  cam: z.enum(CAM_IDS).default('in'),
+  accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).default('#ff2d95')
+});
+
+export const ProjectSchema = z.object({
+  schema: z.literal(1).default(1),
+  id: z.string().default(() => 'p_' + Math.random().toString(36).slice(2, 10)),
+  title: z.string().default('Untitled show'),
+  style: z.enum(STYLE_IDS).default('neon'),
+  mood: z.enum(MOOD_IDS).default('uplifting'),
+  pace: z.number().min(0.5).max(2).default(1),
+  transition: z.enum(TRANSITION_IDS).default('morph'),
+  scenes: z.array(SceneSchema).min(1)
+});
+
+export type StyleId = (typeof STYLE_IDS)[number];
+export type MotifId = (typeof MOTIF_IDS)[number];
+export type TransitionId = (typeof TRANSITION_IDS)[number];
+export type EnterId = (typeof ENTER_IDS)[number];
+export type EaseId = (typeof EASE_IDS)[number];
+export type CamId = (typeof CAM_IDS)[number];
+export type MoodId = (typeof MOOD_IDS)[number];
+export type Scene = z.infer<typeof SceneSchema>;
+export type Project = z.infer<typeof ProjectSchema>;
+
+/** Parse untrusted input (a file, a URL hash) into a Project or throw. */
+export function parseProject(input: unknown): Project {
+  return ProjectSchema.parse(input);
+}
+
+export function safeParseProject(input: unknown): Project | null {
+  const result = ProjectSchema.safeParse(input);
+  return result.success ? result.data : null;
+}

@@ -1,0 +1,12 @@
+{
+  "site": "https://drsamonline.github.io/kinemorph/",
+  "source": "main",
+  "root": "/",
+  "pages": [
+    { "path": "/", "file": "index.html", "title": "Kinemorph — the animation studio that exports real video" },
+    { "path": "/studio/", "file": "studio/index.html", "title": "Kinemorph Studio" },
+    { "path": "/404.html", "file": "404.html", "title": "Kinemorph — not found" }
+  ],
+  "assets": ["assets/", "favicon.svg", "manifest.webmanifest"],
+  "note": "studio/ is a build artefact committed to the branch so Pages can serve it without a deploy workflow. Rebuild with `npm run build`."
+}

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Local references
+        run: node tools/check-links.mjs
+
+      - name: The committed build is up to date
+        run: |
+          if [ -n "$(git status --porcelain studio)" ]; then
+            echo "studio/ is out of date — run 'npm run build' and commit the result."
+            git status --porcelain studio
+            exit 1
+          fi
+          echo "studio/ matches the sources."

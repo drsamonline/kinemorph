@@ -1,0 +1,33 @@
+# Changelog
+
+## [0.1.0] — 2026-11-13
+
+First release. The heavy sibling of Kinemotif: same idea, none of the single-file constraints.
+
+### Added
+- **Monorepo** — `@kinemorph/core`, `renderer`, `audio`, `export` and the `studio` app, with
+  TypeScript project references, Vite and npm workspaces.
+- **Project model** — Zod schemas as the single source of truth for the project, scenes and
+  every enum; `parseProject` / `safeParseProject` for untrusted input.
+- **Command layer** — serialisable, schema-validated commands applied to an immutable project,
+  giving undo/redo with an 80-step history.
+- **Story engine** — sentence splitting, clause-based titles, keyword-to-motif matching and a
+  five-beat expansion for short input.
+- **PixiJS renderer** — six styles rendered at their native resolution, fourteen morphable
+  motifs, seven transitions, ten entrances, eight easings, three camera moves.
+- **Contrast-safe accents** — WCAG relative luminance plus an HSL nudge loop, so a generated
+  accent always clears 3:1 against its own background.
+- **Generative score** — seven moods; note events built as pure data, played through Tone.js
+  and rendered for export through an `OfflineAudioContext`.
+- **WebCodecs MP4 export** — deterministic frame-by-frame encoding through `mp4-muxer`, with
+  AAC where available and Opus otherwise, plus a real-time `MediaRecorder` WebM fallback.
+- **Editor** — scene list, inspector with a live contrast readout, zoomable timeline with
+  drag-trim, transport, wizard and export dialog.
+- **CI** — install, typecheck, build, link check, and a check that the committed build matches
+  the sources.
+
+### Known limitations
+- Export runs on the main thread; long shows are slow.
+- Opus-in-MP4 is ignored by some desktop editors.
+- Collaboration is designed for but not implemented.
+- `mp4-muxer` is deprecated upstream in favour of Mediabunny.

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kinemorph — the animation studio that exports real video</title>
+<meta name="description" content="A browser animation studio with a PixiJS renderer, a GSAP timeline, a Tone.js score and frame-exact MP4 export through WebCodecs. Open source, MIT.">
+<meta property="og:title" content="Kinemorph — write it, watch it move, export the video">
+<meta property="og:description" content="PixiJS + TypeScript studio. Deterministic frame rendering, generative score, WebCodecs MP4 export.">
+<meta property="og:image" content="assets/canvas.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#5b7cff">
+<meta name="color-scheme" content="dark">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg: #08090f; --panel: #10131c; --line: #1e2432; --ink: #eef1f8;
+    --muted: #8e99b0; --accent: #5b7cff; --accent2: #22d3ee; --pink: #ff2d95;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+  nav {
+    position: sticky; top: 0; z-index: 30; backdrop-filter: blur(14px);
+    background: rgba(8, 9, 15, .74); border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  nav .wrap { display: flex; align-items: center; gap: 24px; height: 62px; }
+  .brand { font-weight: 800; letter-spacing: -.02em; font-size: 19px; }
+  .brand span { color: var(--accent); }
+  nav .links { display: flex; gap: 22px; margin-left: auto; font-size: 14px; color: var(--muted); }
+  nav .links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+    border-radius: 9px; font-weight: 600; font-size: 14px;
+    border: 1px solid var(--line); background: #141824; color: var(--ink);
+    transition: transform .15s, border-color .15s, filter .15s;
+  }
+  .btn:hover { transform: translateY(-1px); border-color: #35405a; }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent), #7c5cff);
+    border: 0; color: #fff; box-shadow: 0 12px 30px rgba(91,124,255,.32);
+  }
+  .btn.primary:hover { filter: brightness(1.08); }
+
+  header.hero { position: relative; padding: 74px 0 44px; overflow: hidden; }
+  header.hero::before {
+    content: ""; position: absolute; inset: -220px -10% auto -10%; height: 720px;
+    background:
+      radial-gradient(620px 420px at 16% 8%, rgba(91,124,255,.3), transparent 65%),
+      radial-gradient(620px 420px at 84% 0%, rgba(34,211,238,.16), transparent 65%),
+      radial-gradient(420px 320px at 52% 42%, rgba(255,45,149,.12), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid { position: relative; display: grid; grid-template-columns: 1.04fr .96fr; gap: 48px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid rgba(34,211,238,.3); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px;
+  }
+  h1 { font-size: clamp(38px, 4.6vw, 58px); line-height: 1.05; letter-spacing: -.035em; margin: 0 0 20px; font-weight: 800; }
+  h1 em { font-style: normal; background: linear-gradient(120deg, var(--accent2), var(--accent) 55%, var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 17px; color: var(--muted); max-width: 530px; margin: 0 0 28px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .fineprint { font-size: 12.5px; color: #5f6a82; margin-top: 18px; }
+
+  .shot {
+    border-radius: 14px; overflow: hidden; border: 1px solid var(--line);
+    box-shadow: 0 40px 90px rgba(0,0,0,.65); background: #05060a;
+  }
+  .shot img { width: 100%; display: block; }
+
+  section { padding: 70px 0; }
+  .sec-head { max-width: 660px; margin-bottom: 38px; }
+  .sec-head h2 { font-size: clamp(26px, 3vw, 35px); letter-spacing: -.025em; margin: 0 0 12px; }
+  .sec-head p { color: var(--muted); margin: 0; font-size: 15.5px; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card {
+    background: linear-gradient(180deg, #12151f, #0d1017);
+    border: 1px solid var(--line); border-radius: 14px; padding: 22px;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: #333d55; transform: translateY(-2px); }
+  .card h3 { margin: 0 0 8px; font-size: 15.5px; }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .card code { color: var(--accent2); font-size: 12.5px; }
+
+  pre {
+    background: #0b0e15; border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; overflow-x: auto; font-size: 12.5px; line-height: 1.75;
+    color: #c8d3e8; margin: 0;
+  }
+  pre .c { color: #5f6a82; }
+  pre .k { color: #b9a8ff; }
+  pre .s { color: #7ee0c0; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; }
+  .split h2 { font-size: clamp(24px, 2.6vw, 32px); letter-spacing: -.02em; margin: 0 0 14px; }
+  .split p { color: var(--muted); margin: 0 0 14px; }
+  ul.ticks { list-style: none; padding: 0; margin: 0; }
+  ul.ticks li { padding-left: 24px; position: relative; color: var(--muted); margin-bottom: 9px; font-size: 14px; }
+  ul.ticks li::before { content: "→"; position: absolute; left: 0; color: var(--accent2); }
+
+  .band {
+    border-radius: 18px; padding: 46px 40px; text-align: center;
+    background:
+      radial-gradient(520px 240px at 50% 0%, rgba(91,124,255,.32), transparent 70%),
+      linear-gradient(180deg, #131726, #0c0f16);
+    border: 1px solid var(--line);
+  }
+  .band h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.02em; }
+  .band p { color: var(--muted); margin: 0 0 24px; }
+
+  footer { border-top: 1px solid rgba(255,255,255,.06); padding: 34px 0 54px; color: #5f6a82; font-size: 13px; }
+  footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+  footer a:hover { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero-grid, .grid-3, .split { grid-template-columns: 1fr; }
+    nav .links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Kine<span>morph</span></div>
+    <div class="links">
+      <a href="#how">How it works</a>
+      <a href="#engine">Engine</a>
+      <a href="#export">Export</a>
+      <a href="docs/guide.md">Docs</a>
+      <a href="https://github.com/drsamonline/kinemorph">GitHub</a>
+    </div>
+    <a class="btn primary" href="studio/index.html">Open the studio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">PixiJS · TypeScript · WebCodecs</div>
+      <h1>Write it.<br><em>Export the video.</em></h1>
+      <p class="lede">
+        Kinemorph is the studio version: a React + TypeScript editor over a PixiJS WebGL
+        renderer, a generative Tone.js score, and frame-exact MP4 export through WebCodecs.
+        Same idea as Kinemotif, none of the single-file constraints.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="studio/index.html">Make a show →</a>
+        <a class="btn" href="https://github.com/drsamonline/kinemorph">Read the source</a>
+      </div>
+      <p class="fineprint">MIT · no account · runs entirely in your browser</p>
+    </div>
+    <div class="shot"><img src="assets/canvas.png" alt="Kinemorph studio with a cosmic-style scene"></div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>A studio, not a single file</h2>
+      <p>Five packages, one editor. The engine is headless and pure, so the preview, the scrubber and the export share a code path.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3>@kinemorph/core</h3>
+        <p>Zod-validated project model, Zustand store, serialisable commands with undo/redo, the story engine and the timeline resolver.</p>
+      </div>
+      <div class="card">
+        <h3>@kinemorph/renderer</h3>
+        <p>PixiJS compositor. Renders at each style's native resolution, so pixel styles are genuinely low-res rather than filtered.</p>
+      </div>
+      <div class="card">
+        <h3>@kinemorph/audio</h3>
+        <p>Tone.js score generator. Notes are built as data first, then rendered twice: through Tone for playback, offline for export.</p>
+      </div>
+      <div class="card">
+        <h3>@kinemorph/export</h3>
+        <p>WebCodecs VideoEncoder + mp4-muxer. Deterministic frame loop, AAC/Opus audio, MediaRecorder fallback.</p>
+      </div>
+      <div class="card">
+        <h3>@kinemorph/studio</h3>
+        <p>The React editor: scene list, inspector, zoomable timeline with drag-trim, transport, wizard and export dialog.</p>
+      </div>
+      <div class="card">
+        <h3>Determinism</h3>
+        <p><code>render(project, time)</code> is pure. Nothing advances a clock, so frame 431 is always the same frame.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="engine" style="padding-top:0">
+  <div class="wrap split">
+    <div>
+      <h2>Real geometry, real frames</h2>
+      <p>
+        Every motif is a closed polygon resampled to 96 points, so any motif morphs into any
+        other by interpolating points — not by cross-fading two images.
+      </p>
+      <p>
+        The renderer keeps its backing store at the style's native size: 480×270 for Pixel
+        Arcade, 1920×1080 for the clean looks. That single number is why the 8-bit style
+        actually looks 8-bit.
+      </p>
+      <ul class="ticks">
+        <li>Six styles, fourteen morphable motifs</li>
+        <li>Seven transitions, ten entrances, eight easing curves</li>
+        <li>Three camera moves, per-scene duration</li>
+        <li>Contrast-checked accent colours (WCAG, 3:1 minimum)</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="assets/studio.png" alt="The Kinemorph editor"></div>
+  </div>
+</section>
+
+<section id="export" style="padding-top:0">
+  <div class="wrap split">
+    <div class="shot"><img src="assets/export.png" alt="Export dialog with frame rate, resolution and audio options"></div>
+    <div>
+      <h2>Frame-exact MP4, not a screen recording</h2>
+      <p>
+        Export walks the timeline one frame at a time: set the clock to <code>i / fps</code>,
+        render, grab the pixels, hand them to the hardware encoder. A busy tab cannot drop a
+        frame because nothing is captured in real time.
+      </p>
+      <p>
+        The soundtrack is mixed down through an <code>OfflineAudioContext</code> from the same
+        note data the preview plays, then encoded alongside the video and muxed into the MP4.
+      </p>
+      <pre><span class="c">// the whole export loop</span>
+<span class="k">for</span> (<span class="k">let</span> i = 0; i &lt; totalFrames; i++) {
+  renderer.<span class="k">render</span>(project, i / fps);
+  ctx.<span class="k">drawImage</span>(renderer.canvas, 0, 0, w, h);
+  <span class="k">const</span> frame = <span class="k">new</span> VideoFrame(surface, { timestamp });
+  encoder.<span class="k">encode</span>(frame, { keyFrame: i % (fps * 2) === 0 });
+  frame.<span class="k">close</span>();
+}</pre>
+      <p style="margin-top:16px;font-size:13px">
+        Software rendering is slow — a 4-second test took about 100 seconds on a CPU-only
+        renderer. On a machine with a GPU it runs far faster. There is a real-time WebM
+        fallback for browsers without a video encoder.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Two products, one idea</h2>
+      <p>Kinemorph is the heavy sibling. Pick the one that matches the job.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Kinemorph <span style="color:var(--accent2);font-size:12px">— this repo</span></h3>
+        <p>PixiJS + React + TypeScript. Frame-exact MP4 export, generative score, real editor. Needs a build step and a modern browser.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/drsamonline/kinemotif" style="color:var(--ink);text-decoration:underline">Kinemotif</a></h3>
+        <p>One 98 KB HTML file. No dependencies, no build, no network. Opens from a USB stick and plays offline. Exports HTML shows, not video.</p>
+      </div>
+      <div class="card">
+        <h3>Which one?</h3>
+        <p>Need a video file for a channel or a client? Kinemorph. Need something that runs anywhere, offline, forever? Kinemotif.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="band">
+      <h2>Your next update could move.</h2>
+      <p>Paste the changelog, pick a look, export the MP4.</p>
+      <a class="btn primary" href="studio/index.html">Open the studio →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand" style="font-size:16px">Kine<span>morph</span></div>
+    <span>MIT licensed · PixiJS, GSAP, Tone.js, Zustand, Zod, WebCodecs</span>
+    <span style="margin-left:auto">
+      <a href="studio/index.html">Studio</a> ·
+      <a href="docs/guide.md">Docs</a> ·
+      <a href="https://github.com/drsamonline/kinemorph">GitHub</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

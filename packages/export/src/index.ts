@@ -1,0 +1,314 @@
+import { ArrayBufferTarget, Muxer } from 'mp4-muxer';
+import { STYLES, totalDuration, type Project } from '@kinemorph/core';
+import type { SceneRenderer } from '@kinemorph/renderer';
+
+/**
+ * Frame-exact video export.
+ *
+ * The renderer is a pure function of (project, time), so export is a plain
+ * loop: set the clock to i/fps, render, grab the pixels, encode. Nothing is
+ * recorded in real time and nothing can drop a frame because the tab was busy.
+ * Audio comes from an OfflineAudioContext mixdown of the same score the
+ * preview plays.
+ */
+
+export interface ExportOptions {
+  renderer: SceneRenderer;
+  project: Project;
+  fps?: number;
+  width?: number;
+  height?: number;
+  audio?: AudioBuffer | null;
+  bitrate?: number;
+  onProgress?: (phase: 'video' | 'audio' | 'muxing', progress: number) => void;
+}
+
+export interface ExportResult {
+  blob: Blob;
+  filename: string;
+  width: number;
+  height: number;
+  duration: number;
+  fps: number;
+  hasAudio: boolean;
+  codec: string;
+  /** Why audio was dropped, if it was. */
+  audioError?: string;
+}
+
+export class ExportUnsupportedError extends Error {}
+
+const slug = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'show';
+
+async function firstSupportedVideoConfig(width: number, height: number, bitrate: number, fps: number) {
+  const codecs = ['avc1.4d0028', 'avc1.42001f', 'avc1.42E01E'];
+  for (const codec of codecs) {
+    const config: VideoEncoderConfig = { codec, width, height, bitrate, framerate: fps };
+    try {
+      const support = await VideoEncoder.isConfigSupported(config);
+      if (support.supported) return { config, codec };
+    } catch {
+      /* try the next one */
+    }
+  }
+  return null;
+}
+
+async function firstSupportedAudioConfig(sampleRate: number) {
+  const candidates: { config: AudioEncoderConfig; muxCodec: 'aac' | 'opus' }[] = [
+    { config: { codec: 'mp4a.40.2', sampleRate, numberOfChannels: 2, bitrate: 128_000 }, muxCodec: 'aac' },
+    { config: { codec: 'opus', sampleRate, numberOfChannels: 2, bitrate: 128_000 }, muxCodec: 'opus' }
+  ];
+  for (const candidate of candidates) {
+    try {
+      const support = await AudioEncoder.isConfigSupported(candidate.config);
+      if (support.supported) return candidate;
+    } catch {
+      /* try the next one */
+    }
+  }
+  return null;
+}
+
+export async function exportMP4(options: ExportOptions): Promise<ExportResult> {
+  const { renderer, project } = options;
+  const fps = options.fps ?? 30;
+  const width = options.width ?? 1280;
+  const height = options.height ?? 720;
+  const bitrate = options.bitrate ?? 6_000_000;
+  const duration = totalDuration(project);
+  const style = STYLES[project.style];
+
+  if (typeof VideoEncoder === 'undefined') {
+    throw new ExportUnsupportedError('This browser has no WebCodecs video encoder. Use the WebM recorder instead.');
+  }
+
+  const videoConfig = await firstSupportedVideoConfig(width, height, bitrate, fps);
+  if (!videoConfig) {
+    throw new ExportUnsupportedError('No supported video codec was found for MP4 export.');
+  }
+
+  const audioBuffer = options.audio ?? null;
+  const audioConfig = audioBuffer ? await firstSupportedAudioConfig(audioBuffer.sampleRate) : null;
+
+  const muxer = new Muxer({
+    target: new ArrayBufferTarget(),
+    video: { codec: videoConfig.codec.startsWith('avc1') ? 'avc' : 'vp9', width, height, frameRate: fps },
+    audio: audioBuffer && audioConfig
+      ? { codec: audioConfig.muxCodec, sampleRate: audioBuffer.sampleRate, numberOfChannels: 2 }
+      : undefined,
+    fastStart: 'in-memory'
+  });
+
+  let muxError: Error | null = null;
+  const videoEncoder = new VideoEncoder({
+    output: (chunk, meta) => {
+      try { muxer.addVideoChunk(chunk, meta); } catch (err) { muxError = err as Error; }
+    },
+    error: (err) => { muxError = err; }
+  });
+  videoEncoder.configure(videoConfig.config);
+
+  /* an offscreen surface at export resolution; the style decides the smoothing */
+  const surface = document.createElement('canvas');
+  surface.width = width;
+  surface.height = height;
+  const ctx = surface.getContext('2d', { alpha: false });
+  if (!ctx) throw new ExportUnsupportedError('Could not create an export surface.');
+  ctx.imageSmoothingEnabled = !!style?.smooth;
+  ctx.imageSmoothingQuality = 'high';
+
+  const totalFrames = Math.max(1, Math.round(duration * fps));
+  for (let i = 0; i < totalFrames; i++) {
+    if (muxError) throw muxError;
+    const t = i / fps;
+    renderer.render(project, t);
+    ctx.drawImage(renderer.canvas, 0, 0, width, height);
+
+    const frame = new VideoFrame(surface, {
+      timestamp: Math.round((i * 1e6) / fps),
+      duration: Math.round(1e6 / fps)
+    });
+    videoEncoder.encode(frame, { keyFrame: i % (fps * 2) === 0 });
+    frame.close();
+
+    /* keep the encode queue shallow so memory stays flat on long shows */
+    if (videoEncoder.encodeQueueSize > 6) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    if (i % 4 === 0) options.onProgress?.('video', i / totalFrames);
+  }
+
+  options.onProgress?.('video', 1);
+  await videoEncoder.flush();
+  videoEncoder.close();
+  if (muxError) throw muxError;
+
+  let hasAudio = false;
+  let audioError: string | undefined;
+  if (!audioBuffer) {
+    audioError = 'no score was rendered';
+  } else if (!audioConfig) {
+    audioError = 'this browser has no MP4-capable audio encoder';
+  } else {
+    try {
+      hasAudio = await encodeAudio(audioBuffer, audioConfig, muxer, options.onProgress);
+    } catch (err) {
+      /* a silent MP4 is better than no file, but the caller must be told why */
+      hasAudio = false;
+      audioError = err instanceof Error ? err.message : 'audio encoding failed';
+    }
+  }
+
+  options.onProgress?.('muxing', 0);
+  muxer.finalize();
+  options.onProgress?.('muxing', 1);
+
+  const buffer = (muxer.target as ArrayBufferTarget).buffer;
+  return {
+    blob: new Blob([buffer], { type: 'video/mp4' }),
+    filename: `${slug(project.title)}.mp4`,
+    width,
+    height,
+    duration,
+    fps,
+    hasAudio,
+    codec: videoConfig.codec,
+    audioError
+  };
+}
+
+async function encodeAudio(
+  buffer: AudioBuffer,
+  audioConfig: { config: AudioEncoderConfig; muxCodec: 'aac' | 'opus' },
+  muxer: Muxer<ArrayBufferTarget>,
+  onProgress?: ExportOptions['onProgress']
+): Promise<boolean> {
+  let failure: Error | null = null;
+  const encoder = new AudioEncoder({
+    output: (chunk, meta) => {
+      try { muxer.addAudioChunk(chunk, meta); } catch (err) { failure = err as Error; }
+    },
+    error: (err) => { failure = err; }
+  });
+  encoder.configure(audioConfig.config);
+
+  const channels = Math.min(2, buffer.numberOfChannels);
+  const left = buffer.getChannelData(0);
+  const right = channels > 1 ? buffer.getChannelData(1) : left;
+  const chunkFrames = 4096;
+
+  for (let offset = 0; offset < buffer.length; offset += chunkFrames) {
+    if (failure) throw failure;
+    const count = Math.min(chunkFrames, buffer.length - offset);
+    const interleaved = new Float32Array(count * 2);
+    for (let i = 0; i < count; i++) {
+      interleaved[i * 2] = left[offset + i];
+      interleaved[i * 2 + 1] = right[offset + i];
+    }
+    const data = new AudioData({
+      format: 'f32',
+      sampleRate: buffer.sampleRate,
+      numberOfFrames: count,
+      numberOfChannels: 2,
+      timestamp: Math.round((offset / buffer.sampleRate) * 1e6),
+      data: interleaved
+    });
+    encoder.encode(data);
+    data.close();
+    if (encoder.encodeQueueSize > 8) await new Promise((resolve) => setTimeout(resolve, 0));
+    if (offset % (chunkFrames * 8) === 0) onProgress?.('audio', offset / buffer.length);
+  }
+
+  onProgress?.('audio', 1);
+  await encoder.flush();
+  encoder.close();
+  if (failure) throw failure;
+  return true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fallback: real-time WebM capture                                    */
+/* ------------------------------------------------------------------ */
+
+export interface RecordOptions {
+  renderer: SceneRenderer;
+  project: Project;
+  audio?: AudioBuffer | null;
+  onProgress?: (phase: 'video', progress: number) => void;
+}
+
+/**
+ * Real-time capture. Slower and lossier than the WebCodecs path, but it works
+ * in browsers without a video encoder and it can carry the soundtrack.
+ */
+export async function recordWebM(options: RecordOptions): Promise<ExportResult> {
+  const { renderer, project } = options;
+  const duration = totalDuration(project);
+  const fps = 30;
+
+  const stream = renderer.canvas.captureStream(fps);
+  let audioCtx: AudioContext | null = null;
+
+  if (options.audio) {
+    audioCtx = new AudioContext({ sampleRate: options.audio.sampleRate });
+    const destination = audioCtx.createMediaStreamDestination();
+    const source = audioCtx.createBufferSource();
+    source.buffer = options.audio;
+    source.connect(destination);
+    source.start();
+    destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+  }
+
+  const mimeCandidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+  const mimeType = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) ?? 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6_000_000 });
+  const chunks: BlobPart[] = [];
+  recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+
+  const done = new Promise<void>((resolve) => { recorder.onstop = () => resolve(); });
+  recorder.start(250);
+
+  const startedAt = performance.now();
+  await new Promise<void>((resolve) => {
+    const tick = () => {
+      const elapsed = (performance.now() - startedAt) / 1000;
+      if (elapsed >= duration) { resolve(); return; }
+      renderer.render(project, elapsed);
+      options.onProgress?.('video', elapsed / duration);
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+
+  recorder.stop();
+  await done;
+  if (audioCtx) await audioCtx.close();
+  stream.getTracks().forEach((track) => track.stop());
+
+  return {
+    blob: new Blob(chunks, { type: mimeType }),
+    filename: `${slug(project.title)}.webm`,
+    width: renderer.canvas.width,
+    height: renderer.canvas.height,
+    duration,
+    fps,
+    hasAudio: !!options.audio,
+    codec: mimeType
+  };
+}
+
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    anchor.remove();
+  }, 1500);
+}
+

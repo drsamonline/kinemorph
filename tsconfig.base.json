@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@kinemorph/core": ["packages/core/src/index.ts"],
+      "@kinemorph/renderer": ["packages/renderer/src/index.ts"],
+      "@kinemorph/audio": ["packages/audio/src/index.ts"],
+      "@kinemorph/export": ["packages/export/src/index.ts"]
+    }
+  }
+}
