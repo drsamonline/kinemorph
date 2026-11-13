@@ -94,8 +94,8 @@ moves to the upper third and the artwork to the lower half, and split layouts be
 | `1:1` | 1280 × 1280 | Feed square |
 | `4:5` | 1080 × 1350 | Instagram portrait |
 
-Pick it in the export dialog. The stage switches to the chosen format so you can see what will be
-recorded, and stays there until you change it back.
+The format lives on the project and is chosen in the top bar — the stage reflows immediately, and
+the export uses it unless you override it in the export dialog.
 
 ## Export formats
 

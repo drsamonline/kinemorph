@@ -1,8 +1,8 @@
 import { Application, BlurFilter, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import {
-  EASES, MOTIF_LABELS, STYLES, clamp, contrastRatio, ensureContrast, lerp,
+  ASPECTS, EASES, MOTIF_LABELS, STYLES, clamp, contrastRatio, ensureContrast, lerp,
   morphPoints, motifPoints, resolveFrame, sceneDuration,
-  type Frame, type MotifId, type Project, type Pt, type Scene, type StyleDef
+  type AspectId, type Frame, type MotifId, type Project, type Pt, type Scene, type StyleDef
 } from '@kinemorph/core';
 
 /**
@@ -22,14 +22,7 @@ import {
 let DESIGN_W = 1920;
 let DESIGN_H = 1080;
 
-/** Output formats. Portrait reflows the layout rather than cropping it. */
-export const ASPECTS = {
-  '16:9': { w: 1920, h: 1080, label: 'Landscape 16:9' },
-  '9:16': { w: 1080, h: 1920, label: 'Portrait 9:16' },
-  '1:1': { w: 1080, h: 1080, label: 'Square 1:1' },
-  '4:5': { w: 1080, h: 1350, label: 'Portrait 4:5' }
-} as const;
-export type AspectId = keyof typeof ASPECTS;
+export { ASPECTS, type AspectId } from '@kinemorph/core';
 
 const isPortrait = () => DESIGN_H > DESIGN_W * 1.02;
 
@@ -148,6 +141,8 @@ export class SceneRenderer {
   /** Draw the project at an absolute time, in seconds. */
   render(project: Project, time: number): Frame | null {
     if (!this.ready) return null;
+    /* the project owns its format, so the editor and the export agree */
+    this.setDesign(project.aspect ?? '16:9');
     this.setStyle(STYLES[project.style] ?? STYLES.neon);
 
     const frame = resolveFrame(project, time);

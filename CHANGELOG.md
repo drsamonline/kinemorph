@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0] — 2026-11-13
+
+### Added
+- **The format belongs to the project.** `Project.aspect` (16:9, 9:16, 1:1, 4:5) now drives the
+  editor stage and the export, instead of the export dialog holding a temporary setting. A format
+  selector sits in the top bar; changing it reflows the stage immediately.
+- `ASPECTS` moved into `@kinemorph/core` so the model, the renderer and the export package share one
+  table.
+
+### Changed
+- `exportMP4()` defaults to `project.aspect` when no explicit aspect is passed.
+
 ## [0.6.0] — 2026-11-13
 
 ### Added

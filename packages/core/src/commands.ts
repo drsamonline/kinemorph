@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  CAM_IDS, EASE_IDS, ENTER_IDS, MOOD_IDS, MOTIF_IDS, STYLE_IDS, TRANSITION_IDS,
+  ASPECT_IDS, CAM_IDS, EASE_IDS, ENTER_IDS, MOOD_IDS, MOTIF_IDS, STYLE_IDS, TRANSITION_IDS,
   type Project
 } from './model';
 
@@ -31,7 +31,8 @@ const ProjectPatchSchema = z.object({
   style: z.enum(STYLE_IDS).optional(),
   mood: z.enum(MOOD_IDS).optional(),
   pace: z.number().min(0.5).max(2).optional(),
-  transition: z.enum(TRANSITION_IDS).optional()
+  transition: z.enum(TRANSITION_IDS).optional(),
+  aspect: z.enum(ASPECT_IDS).optional()
 }).strict();
 
 export const CommandSchema = z.discriminatedUnion('type', [

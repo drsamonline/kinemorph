@@ -7,6 +7,16 @@ import { z } from 'zod';
  * possible: the same project at the same time always produces the same frame.
  */
 
+/** Output formats. The design space follows the format; portrait reflows. */
+export const ASPECTS = {
+  '16:9': { w: 1920, h: 1080, label: 'Landscape 16:9' },
+  '9:16': { w: 1080, h: 1920, label: 'Portrait 9:16' },
+  '1:1': { w: 1080, h: 1080, label: 'Square 1:1' },
+  '4:5': { w: 1080, h: 1350, label: 'Portrait 4:5' }
+} as const;
+export const ASPECT_IDS = ['16:9', '9:16', '1:1', '4:5'] as const;
+export type AspectId = keyof typeof ASPECTS;
+
 export const STYLE_IDS = ['pixel', 'stick', 'neon', 'paper', 'cosmic', 'vhs'] as const;
 export const MOTIF_IDS = [
   'sun', 'moon', 'mountain', 'tree', 'city', 'wave',
@@ -39,6 +49,7 @@ export const ProjectSchema = z.object({
   style: z.enum(STYLE_IDS).default('neon'),
   mood: z.enum(MOOD_IDS).default('uplifting'),
   pace: z.number().min(0.5).max(2).default(1),
+  aspect: z.enum(ASPECT_IDS).default('16:9'),
   transition: z.enum(TRANSITION_IDS).default('morph'),
   scenes: z.array(SceneSchema).min(1)
 });

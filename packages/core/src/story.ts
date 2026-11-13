@@ -86,6 +86,7 @@ export interface GenerateOptions {
   mood?: Project['mood'];
   pace?: number;
   transition?: TransitionId;
+  aspect?: Project['aspect'];
   maxScenes?: number;
   title?: string;
 }
@@ -151,6 +152,7 @@ export function generateProject(text: string, options: GenerateOptions = {}): Pr
     style,
     mood: options.mood ?? 'uplifting',
     pace,
+    aspect: options.aspect ?? '16:9',
     transition: options.transition ?? 'morph',
     scenes
   };

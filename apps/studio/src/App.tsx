@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
+  ASPECTS, ASPECT_IDS, EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
   TRANSITION_IDS, CAM_IDS, accentFor, buildCues, contrastRatio, formatTime,
   studioSelectors, totalDuration, useStudio, type Scene
 } from '@kinemorph/core';
@@ -166,6 +166,16 @@ export function App() {
         <div className="brand">
           Kine<span>morph</span>
         </div>
+        <select
+          className="aspect-select"
+          value={project.aspect}
+          onChange={(e) => dispatch({ type: 'project.patch', patch: { aspect: e.target.value as typeof project.aspect } })}
+          title="Output format"
+        >
+          {ASPECT_IDS.map((id) => (
+            <option key={id} value={id}>{ASPECTS[id].label}</option>
+          ))}
+        </select>
         <input
           className="title-input"
           value={project.title}

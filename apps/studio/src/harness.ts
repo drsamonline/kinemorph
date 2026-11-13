@@ -47,6 +47,7 @@ function sceneFor(styleId: (typeof STYLE_LIST)[number]['id'], motif: (typeof MOT
     style: styleId,
     mood: 'none',
     pace: 1,
+    aspect: '16:9',
     transition: 'none',
     scenes: [
       {
