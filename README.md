@@ -118,6 +118,22 @@ node tools/verify-export.mjs --aspect=9:16   # also decodes the result and repor
 magic bytes. It is the only test that exercises export end to end, and it is deliberately not in
 CI: a two-second show takes about a minute on a software renderer.
 
+## Performance budget
+
+The editor must open on a laptop without waiting for libraries it may never use.
+
+| Chunk | Size (raw) | When it loads |
+|---|---|---|
+| `main` | **146 KB** | boot |
+| `index` (PixiJS) | 309 KB | boot — the stage needs it |
+| `src` (Tone.js) | 255 KB | first press of play |
+| `ExportPanel` (Mediabunny) | 278 KB | first press of Export |
+| `encode-worker` | 268 KB | first export, in a worker |
+
+Initial JavaScript is **~455 KB raw**, down from ~730 KB. The budget is: nothing that is only
+needed on play or export may sit in the boot path. Verified by watching which chunks the browser
+requests — see `tools/verify-export.mjs` for the export half.
+
 ## Testing
 
 ```bash

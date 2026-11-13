@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import {
-  DEMO_STORIES, MOOD_IDS, STYLE_LIST, TRANSITION_IDS, generateProject,
+  DEMO_STORIES, MOODS, MOOD_IDS, STYLE_LIST, TRANSITION_IDS, generateProject,
   type MoodId, type Project, type StyleId, type TransitionId
 } from '@kinemorph/core';
-import { MOODS } from '@kinemorph/audio';
+
 
 export function Wizard({ onCreate, onClose }: { onCreate: (project: Project) => void; onClose: () => void }) {
   const [style, setStyle] = useState<StyleId>('neon');

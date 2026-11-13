@@ -1,14 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ASPECTS, ASPECT_IDS, EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
+  ASPECTS, ASPECT_IDS, MOODS, EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
   TRANSITION_IDS, CAM_IDS, accentFor, buildCues, contrastRatio, formatTime,
   studioSelectors, totalDuration, useStudio, type Scene
 } from '@kinemorph/core';
 import { SceneRenderer } from '@kinemorph/renderer';
-import { LiveScore, MOODS } from '@kinemorph/audio';
+
 import { Stage } from './Stage';
 import { Wizard } from './Wizard';
-import { ExportPanel } from './ExportPanel';
+
+
+/* Tone.js is ~250 KB and most visits never press play, so the engine is
+   imported on first use rather than at boot. */
+type AudioModule = typeof import('@kinemorph/audio');
+let audioModule: Promise<AudioModule> | null = null;
+const loadAudio = (): Promise<AudioModule> => (audioModule ??= import('@kinemorph/audio'));
+
+/* the export panel pulls Mediabunny in; nobody needs it until they export */
+const ExportPanel = lazy(() => import('./ExportPanel').then((m) => ({ default: m.ExportPanel })));
 
 export function App() {
   const project = useStudio((s) => s.project);
@@ -35,7 +44,7 @@ export function App() {
   const timeRef = useRef(0);
   const headRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
-  const scoreRef = useRef<LiveScore | null>(null);
+  const scoreRef = useRef<import('@kinemorph/audio').LiveScore | null>(null);
   const duration = totalDuration(project);
   const selected = project.scenes.find((s) => s.id === selection[0]) ?? project.scenes[0];
 
@@ -82,24 +91,24 @@ export function App() {
 
   /* ---------------- audio ---------------- */
 
-  useEffect(() => {
-    const score = new LiveScore();
-    scoreRef.current = score;
-    return () => {
-      score.stop();
-      scoreRef.current = null;
-    };
+  /* the engine is created on the first play, not at boot */
+  const ensureScore = useCallback(async () => {
+    if (scoreRef.current) return scoreRef.current;
+    const { LiveScore } = await loadAudio();
+    if (!scoreRef.current) scoreRef.current = new LiveScore();
+    return scoreRef.current;
   }, []);
 
+  useEffect(() => () => { scoreRef.current?.stop(); scoreRef.current = null; }, []);
+
   useEffect(() => {
-    const score = scoreRef.current;
-    if (!score) return;
-    if (playing) {
-      void score.start(project.mood, duration);
-    } else {
-      score.stop();
-    }
-  }, [playing, project.mood, duration]);
+    if (!playing) { scoreRef.current?.stop(); return; }
+    let cancelled = false;
+    void ensureScore().then((score) => {
+      if (!cancelled) void score.start(project.mood, duration);
+    });
+    return () => { cancelled = true; };
+  }, [playing, project.mood, duration, ensureScore]);
 
   useEffect(() => {
     scoreRef.current?.setMuted(muted);
@@ -340,11 +349,13 @@ export function App() {
       )}
 
       {showExport && renderer && (
-        <ExportPanel
-          renderer={renderer}
-          project={project}
-          onClose={() => setShowExport(false)}
-        />
+        <Suspense fallback={<div className="modal"><div className="modal-card export">Loading the encoder…</div></div>}>
+          <ExportPanel
+            renderer={renderer}
+            project={project}
+            onClose={() => setShowExport(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
