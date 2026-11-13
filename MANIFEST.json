@@ -23,7 +23,7 @@
       "class": "tooling"
     },
     ".github/workflows/ci.yml": {
-      "sha256": "fb9b16a05544634e91dd96f452b1f9a765dc87accedbfbdf5a4b261362dc2afc",
+      "sha256": "7cf64ef40b576c2a6ede29ad8820092f8d9bd4995a705058a5bd1cfca3489ab9",
       "class": "tooling"
     },
     ".gitignore": {
@@ -327,7 +327,7 @@
       "class": "hand"
     },
     "tests/signatures.json": {
-      "sha256": "f23fd7ff4de6d8ab61ecad63dffa72c5615c2c05207a0de9429499087a141a20",
+      "sha256": "6ab6dee974ff4bd1bade3900a419cc5e8fcb54e4b3c87b30684eb7d966a7755a",
       "class": "hand"
     },
     "tests/signatures.spec.ts": {
