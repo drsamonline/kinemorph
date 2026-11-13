@@ -322,10 +322,6 @@
       "sha256": "d5f0f5d9c4bd6aecc73a073ea90e4a2d7f4644609ef02fa8753da3c789247a38",
       "class": "generated"
     },
-    "test-results/.last-run.json": {
-      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
-      "class": "hand"
-    },
     "tests/selftest.spec.ts": {
       "sha256": "bf29e6ce5e98d34dfbf665e12e9a92a3c27830cc34b6da883e6620d1ae712395",
       "class": "hand"
@@ -347,7 +343,7 @@
       "class": "tooling"
     },
     "tools/manifest.mjs": {
-      "sha256": "61e37fa2cfc6fb30120e0fc1f68683381b572f7874d70bfa4f58d91369195605",
+      "sha256": "7f2e56d774341ff9475c6ecd57cb370a9efc0739384334c0fe53d0652bffd401",
       "class": "tooling"
     },
     "tsconfig.base.json": {

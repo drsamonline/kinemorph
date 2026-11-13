@@ -9,7 +9,8 @@ import { dirname, join, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SKIP = new Set(['.git', 'node_modules', '.DS_Store']);
+/* keep this in step with .gitignore — the manifest must only list tracked files */
+const SKIP = new Set(['.git', 'node_modules', '.DS_Store', 'test-results', 'playwright-report', 'dist']);
 const SKIP_FILES = new Set(['MANIFEST.json']);
 
 function walk(dir, out = []) {
