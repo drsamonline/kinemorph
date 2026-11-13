@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-test — Kinemorph</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#5b7cff">
+<style>
+  :root { color-scheme: dark; --bg:#08090f; --panel:#10131c; --line:#1e2432; --ink:#eef1f8; --muted:#8e99b0; --ok:#3ddc97; --bad:#ff6b8a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",system-ui,sans-serif;
+         max-width: 980px; margin: 0 auto; padding: 32px 20px 60px; line-height:1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.02em; }
+  h1 span { color:#5b7cff; }
+  p.sub { color: var(--muted); margin: 0 0 20px; font-size: 13.5px; }
+  #summary { display:inline-block; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 14px;
+             border: 1px solid var(--line); background: var(--panel); margin-bottom: 18px; }
+  #summary.ok { color: var(--ok); border-color: rgba(61,220,151,.4); }
+  #summary.bad { color: var(--bad); border-color: rgba(255,107,138,.4); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10.5px; letter-spacing:.12em; text-transform: uppercase;
+       color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; }
+  td:first-child { width: 64px; font-weight: 700; font-size: 11px; }
+  td:nth-child(2) { width: 38%; }
+  td:last-child { color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+  tr.ok td:first-child { color: var(--ok); }
+  tr.bad td:first-child { color: var(--bad); }
+  tr.bad td:nth-child(2) { color: var(--bad); }
+  footer { margin-top: 24px; color: #5f6a82; font-size: 12px; }
+  a { color: #22d3ee; }
+</style>
+</head>
+<body>
+  <h1>Kine<span>morph</span> self-test</h1>
+  <p class="sub">Pure-engine assertions — geometry, timeline, story, colour, score. No framework, no network.</p>
+  <div id="summary">running…</div>
+  <table>
+    <thead><tr><th>Result</th><th>Check</th><th>Detail</th></tr></thead>
+    <tbody id="results"></tbody>
+  </table>
+  <footer><a href="./index.html">← back to the studio</a></footer>
+  <script type="module" src="/src/selftest.ts"></script>
+</body>
+</html>

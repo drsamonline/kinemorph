@@ -82,6 +82,21 @@ Undo, redo and — later — collaboration all fall out of the same structure.
 
 ---
 
+## Testing
+
+`studio/selftest.html` runs 19 assertions against the pure engine — motif geometry, morph
+endpoints, timeline tiling, transition windows, story determinism, command validation, WCAG
+contrast maths, accent legibility across every style, score ordering and determinism, and the
+offline mixdown length and peak. It needs no framework and no network, and it publishes its
+results on `window.__SELFTEST__` so a headless run can assert on them.
+
+```
+/studio/selftest.html        # in the dev server or the built site
+```
+
+There is no headless test runner in CI yet; the self-test is a page you open. Adding a
+Playwright pass over it is the obvious next step.
+
 ## Known limitations
 
 - **MP4 audio is AAC where available, Opus otherwise.** Opus-in-MP4 plays in browsers and VLC;
@@ -106,6 +121,9 @@ Same house rules as the rest of the fleet:
 | `tools/check-links.mjs` | Fails if a local reference is broken or the build is missing. |
 | `.github/workflows/ci.yml` | `npm ci` → typecheck → build → link check → verifies the committed build matches the sources. |
 | `studio/` | Build output, committed on purpose so Pages can serve it from the branch. |
+| `MANIFEST.json` | Inventory of every tracked file with a SHA-256 and a class (`source`, `generated`, `asset`, `tooling`, `hand`). `tools/manifest.mjs --check` fails on unlisted or missing files. |
+| `.github/dependabot.yml` | Weekly, one grouped PR per ecosystem; majors are ignored on purpose. |
+| `SECURITY.md` · `PRIVACY.md` · `CODE_OF_CONDUCT.md` · `CITATION.cff` | The same set every repo in the fleet carries. |
 
 ---
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0] — 2026-11-13
+
+### Added
+- **Offline self-test** (`studio/selftest.html`) — 19 assertions across geometry, timeline,
+  story, colour, score and the offline mixdown. Publishes results on `window.__SELFTEST__`.
+- **`MANIFEST.json` + `tools/manifest.mjs`** — file inventory with SHA-256 and class, checked in CI.
+- **Dependabot** — weekly, grouped, one PR per ecosystem, majors ignored.
+- **Issue and PR templates**, `SECURITY.md`, `PRIVACY.md`, `CODE_OF_CONDUCT.md`, `CITATION.cff`.
+
+### Changed
+- CI now also verifies the manifest covers every tracked file.
+- The Vite build emits two entries (studio and self-test) and splits PixiJS out of the main chunk.
+
 ## [0.1.0] — 2026-11-13
 
 First release. The heavy sibling of Kinemotif: same idea, none of the single-file constraints.

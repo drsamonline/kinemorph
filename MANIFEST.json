@@ -1,0 +1,306 @@
+{
+  "schema": 1,
+  "generator": "tools/manifest.mjs",
+  "files": {
+    ".github/FUNDING.yml": {
+      "sha256": "8ce356d0f9493091d376910304d6f52016404c0f6b4e020caa018b7b058dce3b",
+      "class": "tooling"
+    },
+    ".github/ISSUE_TEMPLATE/bug.yml": {
+      "sha256": "a2718d3767385a5ba520d80f8103fecddcba4df75ba3a93753495a7c8b031233",
+      "class": "tooling"
+    },
+    ".github/ISSUE_TEMPLATE/feature.yml": {
+      "sha256": "9f51428ba6284dfd34be8dc6888891222bd6feda8828e4e565fe981236c1750e",
+      "class": "tooling"
+    },
+    ".github/PULL_REQUEST_TEMPLATE.md": {
+      "sha256": "76a80289bbee0b30d2b4b7b977ec9597f4642331440389e95aadba33d5859a2e",
+      "class": "tooling"
+    },
+    ".github/dependabot.yml": {
+      "sha256": "dbb577b4ca7b19ddb36717f4f194fe0d493180ed2fd0a0b9fd3099323b55b564",
+      "class": "tooling"
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "ba689da7d7cacfadb81977eb398391a0bf21a1e207c953ca5a458fbdfb4fa56e",
+      "class": "tooling"
+    },
+    ".gitignore": {
+      "sha256": "b355fabf4ae7b880fcabf2bd9e8a18e7757fbc70714519c85838e4e04350f27c",
+      "class": "hand"
+    },
+    ".nojekyll": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "hand"
+    },
+    "404.html": {
+      "sha256": "96780404d020e75eb8c51e6fc0c38007da16b048aa38081a881955fd73a6b9f9",
+      "class": "hand"
+    },
+    "CHANGELOG.md": {
+      "sha256": "6ac2416d7742eb8a5968be6e092e88e3a6ab4c378f8d23c90083593412b4c9d2",
+      "class": "hand"
+    },
+    "CITATION.cff": {
+      "sha256": "fe20453d0209bd5b6344e2ade50f008e85dd63b02f3c225cb4b7c1282bc13ab3",
+      "class": "hand"
+    },
+    "CODE_OF_CONDUCT.md": {
+      "sha256": "c0b9ed71c3c658a4e45aca81f469da8688de84b9cc3048fb4e0c9940ba0a5d52",
+      "class": "hand"
+    },
+    "LICENSE": {
+      "sha256": "bcb851e67f7759779d6e041d43f039fb1c0e45dd3c12671b0009fde9e0c1a61b",
+      "class": "hand"
+    },
+    "PAGES.json": {
+      "sha256": "b45364b7eb8d7bebcb82de5beeebbcef8222b34d31dce7d70a503260b1d445f3",
+      "class": "hand"
+    },
+    "PRIVACY.md": {
+      "sha256": "b40c61fe5e4084a3b86316d5a46b89c80c000f35561a66668d1cdd936e25b715",
+      "class": "hand"
+    },
+    "README.md": {
+      "sha256": "4bbbc893af2b37aebedee2d55a90b26f787abb9b41ba4a005049d9542c67b2eb",
+      "class": "hand"
+    },
+    "SECURITY.md": {
+      "sha256": "bb087ce5434d29b7af8f73170a93ea0567cd53a6475092692698b550bcc7c907",
+      "class": "hand"
+    },
+    "apps/studio/index.html": {
+      "sha256": "e51aa65786f73b538cfe7dd28cfac1eb02348a5e9686f9b42d75e8ba5e66e3ea",
+      "class": "source"
+    },
+    "apps/studio/package.json": {
+      "sha256": "357364dfb91742669633709e94d669c9f4f68100d3085c1812ab339b71ba9ff4",
+      "class": "source"
+    },
+    "apps/studio/public/favicon.svg": {
+      "sha256": "cedd1af741b2bb8efe813e093b988c2ba600a6838ba4d43b2afb24358a1189ce",
+      "class": "source"
+    },
+    "apps/studio/selftest.html": {
+      "sha256": "9edffc0782c97052e30836e2b6ebaf5bfa162fe060a61021246363a1c9a7e7d4",
+      "class": "source"
+    },
+    "apps/studio/src/App.tsx": {
+      "sha256": "fc986822ced9ac85a3d68c6c6486e7b736742ed614c7783c631f384a6afa1bab",
+      "class": "source"
+    },
+    "apps/studio/src/ExportPanel.tsx": {
+      "sha256": "cf9172f7932477a17de35a86565b3e06de3d527741e32c66ffc0d5d727df87a6",
+      "class": "source"
+    },
+    "apps/studio/src/Stage.tsx": {
+      "sha256": "f529cc8c79e388cacd8fe64e71b66596f232648bfc6489e84d6d64dcf514c1e4",
+      "class": "source"
+    },
+    "apps/studio/src/Wizard.tsx": {
+      "sha256": "fa73f9ac59ba37cb52f9bb5d7aec23a86db46fe254703a1929472e55772366f8",
+      "class": "source"
+    },
+    "apps/studio/src/main.tsx": {
+      "sha256": "75e781d6b7bb490ab196d6d7a2e7469e3ab2db1dd929bd2fb2c45acdf1f5f6b0",
+      "class": "source"
+    },
+    "apps/studio/src/selftest.ts": {
+      "sha256": "f9b2a0473c084ef1a21d48578f2081dbf06afa965f0dd2edd5192dab3098c575",
+      "class": "source"
+    },
+    "apps/studio/src/styles.css": {
+      "sha256": "0643eef10165de53f81bf7754d6667c159f3b86bf79a3c4487f0f827f8cf75a9",
+      "class": "source"
+    },
+    "apps/studio/vite.config.ts": {
+      "sha256": "c3258128049a43c02382e77e1df230fb881e2e94598bbc7680aa5df19a5d9e7a",
+      "class": "source"
+    },
+    "assets/canvas.png": {
+      "sha256": "3478ec0896167808d76e458bb495366055c6e3c4ba9210ccd2185509c24ad2a6",
+      "class": "asset"
+    },
+    "assets/export.png": {
+      "sha256": "431990d691403cce224e683d5cf72527a47063232d86edfb81bb44135595d61c",
+      "class": "asset"
+    },
+    "assets/studio.png": {
+      "sha256": "b48868b58d17a28c539c548f510131e963cd13c6c1ce1704b8a37998fd562554",
+      "class": "asset"
+    },
+    "assets/wizard.png": {
+      "sha256": "53000a3ce2ae4ce78ecade0ae22131fa823c775eac1d6e5822725bf87743943b",
+      "class": "asset"
+    },
+    "docs/guide.md": {
+      "sha256": "e0c60489b5358adccfb49672b30c20f19ca071522af1fdc7a6f00d41040c84f8",
+      "class": "hand"
+    },
+    "favicon.svg": {
+      "sha256": "cedd1af741b2bb8efe813e093b988c2ba600a6838ba4d43b2afb24358a1189ce",
+      "class": "asset"
+    },
+    "index.html": {
+      "sha256": "942f5f1ad788ef16e8f8e192f48fc8f4e878a5cdb236cfde4af6a6fb6fc5c4a1",
+      "class": "hand"
+    },
+    "manifest.webmanifest": {
+      "sha256": "3b0525b7b6572d37a78d1e91e8ae6190b4baf17445e9244fe5972c4cfbd8de7b",
+      "class": "hand"
+    },
+    "package-lock.json": {
+      "sha256": "da9874361b9d199e74251dbc147851a2aa65bcb844553f70e6caac8c61e3e953",
+      "class": "hand"
+    },
+    "package.json": {
+      "sha256": "d3febea80b14403cddaea704db9c7ffc799e48d3bb04240b6a95416966cb3895",
+      "class": "hand"
+    },
+    "packages/audio/package.json": {
+      "sha256": "fce3d53abc1e94883659c8296c9acd55e74b923bdc7c906b6990e3d9caf8efeb",
+      "class": "source"
+    },
+    "packages/audio/src/index.ts": {
+      "sha256": "e6ac8ec1467f7783f2b38ff7ddef4b18ef78bd65be9147e273a99e35fcd32658",
+      "class": "source"
+    },
+    "packages/core/package.json": {
+      "sha256": "14c33f48ccb6e306c6405c3cf0237d581f991df5b4e623269c9780c3f6015829",
+      "class": "source"
+    },
+    "packages/core/src/commands.ts": {
+      "sha256": "c6fb96a17206abb299baecb792accffeb43537ff32541d3fceb20ea29fdddf35",
+      "class": "source"
+    },
+    "packages/core/src/easing.ts": {
+      "sha256": "242b41aa8052eb146fb12044194d1ab8f07e2080137e226004fd456fb13c7979",
+      "class": "source"
+    },
+    "packages/core/src/index.ts": {
+      "sha256": "e8f9a57385c8b8806b9c5154ac64d88e42932f55fa3728989731897488823dd0",
+      "class": "source"
+    },
+    "packages/core/src/model.ts": {
+      "sha256": "1a608721e07024a65a614bbde09cbd7eb53b12b2abc2b7f426fb06da1e340dd4",
+      "class": "source"
+    },
+    "packages/core/src/motifs.ts": {
+      "sha256": "35409795e98e0e77cfa488af4f0e0c1b0c335dc8358d53acb836396e8bf9cc0a",
+      "class": "source"
+    },
+    "packages/core/src/store.ts": {
+      "sha256": "07afe1c46ce5fea845227376bc0832334cdaeca84c1ba8941b7349b09fe5330a",
+      "class": "source"
+    },
+    "packages/core/src/story.ts": {
+      "sha256": "1c145dfd3aaff36b1cbf46c8494f772ad1d8d72c31323814bb98bf0147627ea1",
+      "class": "source"
+    },
+    "packages/core/src/styles.ts": {
+      "sha256": "137487b2308246d074a044ce10ee618f66e0bcc5423848aeb3142fdeb46fa650",
+      "class": "source"
+    },
+    "packages/core/src/timeline.ts": {
+      "sha256": "654a9322ec735e9e4d2236fbacd6bddb6a50a1081cfcabf78d47f0d047cefa4d",
+      "class": "source"
+    },
+    "packages/export/package.json": {
+      "sha256": "30e1c403482200ef14ea791023fba3dbe8d33c4e7ee9e7362466d51883915b1a",
+      "class": "source"
+    },
+    "packages/export/src/index.ts": {
+      "sha256": "51c6c69e3a6379b0349b6b7b4ca34a46637cb8a93ea47be97975c0470ede953d",
+      "class": "source"
+    },
+    "packages/renderer/package.json": {
+      "sha256": "ae07c5927c7dcb30f05b6a665119fd8a8c759b7c86b849f69f9960e7ef6973fe",
+      "class": "source"
+    },
+    "packages/renderer/src/index.ts": {
+      "sha256": "5edaed0f22785262cbb53109d282721e673c8fb1042c4447d7b553a0892fe40d",
+      "class": "source"
+    },
+    "robots.txt": {
+      "sha256": "ccb66bfc1625c43597f624becd02f25ff4ddcba71f7cc48919f123f30cff805a",
+      "class": "hand"
+    },
+    "sitemap.xml": {
+      "sha256": "6b299bc519b3f6ff61e0d52036b3f00947856ca5e71dcb78e8b584ade1fcc90e",
+      "class": "hand"
+    },
+    "studio/assets/CanvasRenderer-ztrg-tej.js": {
+      "sha256": "f173d6ce045d6349829caacc30d9806f9e2206c0472fed200b368eb1f28cc4c7",
+      "class": "generated"
+    },
+    "studio/assets/RenderTargetSystem-CAPsYpoA.js": {
+      "sha256": "f373bde901b7f6925a9d62fae7c3c8c106b6a6cf097db2f587e43d384b600247",
+      "class": "generated"
+    },
+    "studio/assets/WebGLRenderer-mJptZJ79.js": {
+      "sha256": "a7e0af2720f242ae0be746e407d15fbf65fa5682a87ffe629303c9b5d74c8a8f",
+      "class": "generated"
+    },
+    "studio/assets/WebGPURenderer-DtLEPA_t.js": {
+      "sha256": "2c72f19ae8f10894192ff9d77224d7f96b7196afc73369e31ef8a3b6b0eb1e29",
+      "class": "generated"
+    },
+    "studio/assets/browserAll-CFs3cRNj.js": {
+      "sha256": "1729175d872ca254cf89ce3dd82a5a0e0b10cfb21fe5f4e2fa7f2fd0c91533d6",
+      "class": "generated"
+    },
+    "studio/assets/getTexelRangeRects-C1NnHmk3.js": {
+      "sha256": "a574177c4ebfb59ee522089008a2a731f79050ed8b615ce97a906a0271bc7e7a",
+      "class": "generated"
+    },
+    "studio/assets/index-CFZ5iOIa.js": {
+      "sha256": "1516a29bf4ed46dfe57cbc163853621d85339bb8faf4255d25b75cc4db2c296a",
+      "class": "generated"
+    },
+    "studio/assets/main-DssIerY2.css": {
+      "sha256": "974df71294b1a2e48ba24e4aa3dc4eaa66d6e6da37f1020de2ade84b1db3d473",
+      "class": "generated"
+    },
+    "studio/assets/main-nG0kxQwn.js": {
+      "sha256": "8e92513ac5adeea085211dd2d41bcb55175330dc7ab83826be98007a16a06f4e",
+      "class": "generated"
+    },
+    "studio/assets/selftest-DbNhkTAz.js": {
+      "sha256": "452e084337fbaf5bee1c3d1803770e21062bd55009bbee55ec493c95768e111a",
+      "class": "generated"
+    },
+    "studio/assets/webworkerAll-DOrYmfeg.js": {
+      "sha256": "17baa584e152513b6aa96fde9dbb58208f97e844c248262705e27cf101da989c",
+      "class": "generated"
+    },
+    "studio/favicon.svg": {
+      "sha256": "cedd1af741b2bb8efe813e093b988c2ba600a6838ba4d43b2afb24358a1189ce",
+      "class": "generated"
+    },
+    "studio/index.html": {
+      "sha256": "2567d55cd1e4b0476756a6eb273c18f8b2cbca2d474394cb1c44252f20fa9c87",
+      "class": "generated"
+    },
+    "studio/selftest.html": {
+      "sha256": "8ecd38427812095b328e0b194df24f50e9b6233cb70910595632b5f9c9657640",
+      "class": "generated"
+    },
+    "tools/check-links.mjs": {
+      "sha256": "1c57b96acd783799e7c594bca9cf0207b7b927e0fc94445d17b308874abc67ca",
+      "class": "tooling"
+    },
+    "tools/manifest.mjs": {
+      "sha256": "61e37fa2cfc6fb30120e0fc1f68683381b572f7874d70bfa4f58d91369195605",
+      "class": "tooling"
+    },
+    "tsconfig.base.json": {
+      "sha256": "928ae3ceea3d1a0dc8fe1620db4b384e225ba5abb607bdc668925d2a359cca35",
+      "class": "hand"
+    },
+    "tsconfig.json": {
+      "sha256": "4eeb6c968177b3f8766f8c75f1bf1bdbadd33421174400a661f8fd99188ab928",
+      "class": "hand"
+    }
+  }
+}

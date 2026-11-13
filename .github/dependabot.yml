@@ -1,0 +1,35 @@
+# Weekly, grouped, one pull request per ecosystem.
+# The shape is the same in every repo in the fleet: a minor or patch bump of any
+# dependency arrives as a single grouped PR, and majors are ignored on purpose —
+# a major is a decision to make deliberately, not a chore to merge.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: deps
+    groups:
+      runtime:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']

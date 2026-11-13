@@ -32,6 +32,9 @@ jobs:
       - name: Local references
         run: node tools/check-links.mjs
 
+      - name: Manifest is complete
+        run: node tools/manifest.mjs --check
+
       - name: The committed build is up to date
         run: |
           if [ -n "$(git status --porcelain studio)" ]; then

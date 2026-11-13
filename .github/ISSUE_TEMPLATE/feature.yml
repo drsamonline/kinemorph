@@ -1,0 +1,22 @@
+name: Feature request
+description: Something the studio should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that the studio makes hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package
+      options: ['@kinemorph/core', '@kinemorph/renderer', '@kinemorph/audio', '@kinemorph/export', '@kinemorph/studio', 'Not sure']

@@ -1,0 +1,36 @@
+name: Bug report
+description: Something is broken
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the studio
+        2. Pick a style
+        3. Press Export MP4
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Renderer, Export, Audio, Editor UI, Story engine, Other]
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 131 on macOS 15
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      render: shell

@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html', '404.html', 'studio/index.html'];
+const pages = ['index.html', '404.html', 'studio/index.html', 'studio/selftest.html'];
 const problems = [];
 
 const strip = (v) => v.split('?')[0].split('#')[0];

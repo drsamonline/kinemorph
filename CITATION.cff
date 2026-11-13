@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "Kinemorph: a browser animation studio with frame-exact video export"
+message: "If you use Kinemorph in academic work, cite it as below."
+type: software
+authors:
+  - family-names: Momin
+    given-names: Sohil
+    email: sohilmomin2000@gmail.com
+    affiliation: "drsamonline"
+license: MIT
+repository-code: "https://github.com/drsamonline/kinemorph"
+url: "https://drsamonline.github.io/kinemorph/"
+abstract: >-
+  Kinemorph is a browser animation studio built on PixiJS, React and TypeScript. A pure
+  render(project, time) function drives the preview, the scrubber and a frame-by-frame
+  WebCodecs export, so exported video is identical to what the editor showed.
+keywords:
+  - animation
+  - video-export
+  - webcodecs
+  - pixijs
+  - generative-audio

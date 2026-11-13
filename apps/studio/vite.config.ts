@@ -16,6 +16,12 @@ export default defineConfig({
     }
   },
   build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        selftest: fileURLToPath(new URL('./selftest.html', import.meta.url))
+      }
+    },
     outDir: '../../studio',
     emptyOutDir: true,
     target: 'es2022',
