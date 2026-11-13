@@ -1,5 +1,34 @@
 # Changelog
 
+All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
+versioning follows [Semantic Versioning](https://semver.org/).
+
+## [0.10.0] — 2026-11-14
+
+### Changed
+- **Tone.js and Mediabunny no longer load at boot.** Mood data moved to `@kinemorph/core` (it is
+  pure data), so the mood picker renders without the audio engine; `LiveScore` is imported on the
+  first press of play and `ExportPanel` on the first press of Export.
+- Entry chunk **424 KB → 146 KB**; initial JavaScript **~730 KB → ~455 KB** raw.
+
+### Verified
+- Boot requests only `main` and `index` (Pixi); no Tone, no Mediabunny.
+- Pressing play loads the audio chunk; pressing Export loads the panel chunk and the dialog opens.
+
+## [0.9.0] — 2026-11-13
+
+### Added
+- **Blueprint, Riso Print, Chalkboard and Swiss Grid** — ten styles, matching Kinemotif. Each has
+  its own background treatment (grid and frame, overprint circles, board edge, hard rules) and its
+  own motif painting (dashed outline, ghost offset, chalk stroke, solid with a white inlay).
+
+### Fixed
+- Body copy colour was chosen from a list of style names, so the new dark styles got dark text on
+  a dark background. It follows the background's luminance now.
+
+### Changed
+- Golden signatures regenerated on the runner: 10 styles × 14 motifs = 140 frames.
+
 ## [0.8.0] — 2026-11-13
 
 ### Added
