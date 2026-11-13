@@ -7,6 +7,8 @@ import { accentFor } from './styles';
  * model, no network — which is why the whole studio can run offline.
  */
 
+const VISUAL_CYCLE = ['motif', 'motif', 'bars', 'flow', 'motif', 'rings', 'timeline', 'orbit', 'steps', 'grid'];
+
 const KEYWORDS: Record<MotifId, string[]> = {
   sun: ['sun', 'light', 'morning', 'bright', 'hope', 'summer', 'warm', 'day', 'shine'],
   moon: ['moon', 'night', 'sleep', 'quiet', 'calm', 'dark', 'dawn'],
@@ -135,6 +137,7 @@ export function generateProject(text: string, options: GenerateOptions = {}): Pr
       title,
       body,
       motif,
+      visual: VISUAL_CYCLE[index % VISUAL_CYCLE.length],
       dur: (index === 0 ? 4.5 : 5.5) * pace,
       layout: index === 0 || (last && chunks.length > 2) ? 'center' : 'split',
       transition: options.transition ?? 'morph',

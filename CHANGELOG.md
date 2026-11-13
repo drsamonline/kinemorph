@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.0] — 2026-11-13
+
+### Added
+- **The seven diagrams** from Kinemotif are now in Kinemorph: bars, flow, rings, orbit, steps, grid
+  and timeline, drawn with PixiJS Graphics from the style's own palette. `Scene.visual` selects
+  one; the story engine cycles them in automatically.
+- Diagrams get their own Graphics object so a scene can switch between motif and diagram without
+  one clearing the other.
+
+### Note
+- Two rounds of this were spent chasing a bug that did not exist: the verification script clicked a
+  button matching /play/i, which the transport does not have, so every screenshot was taken at
+  t=0 where the entrance animation has not started. The diagrams were correct all along.
+
 ## [0.7.0] — 2026-11-13
 
 ### Added

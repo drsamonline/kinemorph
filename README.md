@@ -40,7 +40,7 @@ apps/studio ──▶ @kinemorph/renderer ──▶ @kinemorph/core
 | Package | Responsibility |
 |---|---|
 | **@kinemorph/core** | Zod-validated project model, Zustand store, serialisable commands with undo/redo, story engine, timeline resolver, motif geometry, colour math. No DOM, no Pixi, no Tone. |
-| **@kinemorph/renderer** | PixiJS compositor. `render(project, time)` draws one frame. Handles styles, camera, entrances and transitions. |
+| **@kinemorph/renderer** | PixiJS compositor with motifs and seven diagrams. `render(project, time)` draws one frame. Handles styles, camera, entrances and transitions. |
 | **@kinemorph/audio** | Score generator. `buildScore(mood, seconds)` returns note events; Tone.js plays them live, an `OfflineAudioContext` renders them for export. |
 | **@kinemorph/export** | Mediabunny for encoding and muxing (it succeeded `mp4-muxer`): MP4/H.264 or WebM/VP9, plus 16-bit WAV audio stems. A real-time `MediaRecorder` path remains for browsers without WebCodecs. |
 | **@kinemorph/studio** | The Vite + React editor. |

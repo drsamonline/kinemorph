@@ -247,6 +247,8 @@ class SceneView {
   readonly container = new Container();
   private bg = new Graphics();
   private motif = new Graphics();
+  /* diagrams get their own object: reusing the motif Graphics dropped fills */
+  private diagram = new Graphics();
   private detail = new Graphics();
   private textLayer: TextBlock;
   private sceneId: string;
@@ -256,7 +258,7 @@ class SceneView {
 
   constructor(scene: Scene) {
     this.sceneId = scene.id;
-    this.container.addChild(this.bg, this.motif, this.detail);
+    this.container.addChild(this.bg, this.motif, this.diagram, this.detail);
     this.textLayer = SceneView.makeTextBlock();
     this.container.addChild(this.textLayer.container);
   }
@@ -439,6 +441,145 @@ class SceneView {
     }
   }
 
+
+  /** The seven diagrams, drawn with the same Graphics as the motifs. */
+  private drawDiagram(
+    kind: string, style: StyleDef, accent: string,
+    cx: number, cy: number, r: number, t: number, alpha: number
+  ): void {
+    const g = this.diagram;
+    g.clear();
+    const ink = style.palette.ink;
+    const alt = style.palette.accents[(style.palette.accents.indexOf(accent) + 2) % style.palette.accents.length] ?? accent;
+    const ease = EASES.back;
+    const grow = ease(clamp(t / 0.9, 0, 1));
+    const thick = style.id === 'pixel' ? 10 : 5;
+    const disc = (x: number, y: number, rad: number, colour: string, a = 1) => {
+      const pts: number[] = [];
+      for (let i = 0; i < 28; i++) {
+        const ang = (i / 28) * Math.PI * 2;
+        pts.push(x + Math.cos(ang) * rad, y + Math.sin(ang) * rad);
+      }
+      g.poly(pts).fill({ color: hex(colour), alpha: a * alpha });
+    };
+    const ring = (x: number, y: number, rad: number, w: number, colour: string, a = 1) => {
+      const pts: number[] = [];
+      for (let i = 0; i < 28; i++) {
+        const ang = (i / 28) * Math.PI * 2;
+        pts.push(x + Math.cos(ang) * rad, y + Math.sin(ang) * rad);
+      }
+      g.poly(pts).stroke({ width: w, color: hex(colour), alpha: a * alpha });
+    };
+    const block = (x: number, y: number, w: number, h: number, colour: string, a = 1) =>
+      g.poly([x, y, x + w, y, x + w, y + h, x, y + h]).fill({ color: hex(colour), alpha: a * alpha });
+    const frame = (x: number, y: number, w: number, h: number, colour: string, a = 1) =>
+      g.poly([x, y, x + w, y, x + w, y + h, x, y + h]).stroke({ width: 3, color: hex(colour), alpha: a * alpha });
+    const line = (x1: number, y1: number, x2: number, y2: number, w: number, colour: string, a = 1) =>
+      g.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: w, color: hex(colour), alpha: a * alpha });
+
+    if (kind === 'rings') {
+      for (let i = 0; i < 4; i++) {
+        const rr = r * (0.35 + i * 0.22) * grow;
+        const from = t * (0.4 + i * 0.2);
+        const to = from + Math.PI * 2 * (0.6 + 0.4 * Math.sin(t * 1.2 + i));
+        const sx = cx + Math.cos(from) * rr;
+        const sy = cy + Math.sin(from) * rr;
+        g.moveTo(sx, sy).arc(cx, cy, rr, from, to)
+          .stroke({ width: thick, color: hex(i % 2 ? alt : accent), alpha: alpha * (0.9 - i * 0.12) });
+      }
+      disc(cx, cy, r * 0.16 * grow, accent);
+      return;
+    }
+
+    if (kind === 'bars') {
+      const n = 5, bw = r * 0.26, gap = r * 0.16;
+      const totalW = n * bw + (n - 1) * gap;
+      const baseY = cy + r * 0.75;
+      const seed = [0.45, 0.8, 0.35, 0.62, 0.5];
+      for (let i = 0; i < n; i++) {
+        const rise = ease(clamp((t - i * 0.12) / 0.7, 0, 1));
+        const h = (0.35 + seed[i] * 0.65) * r * 1.5 * rise;
+        const x = cx - totalW / 2 + i * (bw + gap);
+        block(x, baseY - h, bw, h, i === n - 2 ? alt : accent);
+      }
+      line(cx - totalW / 2 - 12, baseY, cx + totalW / 2 + 12, baseY, 3, ink, 0.5);
+      return;
+    }
+
+    if (kind === 'flow') {
+      const nodes = 3, nr = r * 0.24, span = r * 1.9;
+      const active = Math.floor(t / 1.2) % nodes;
+      for (let i = 0; i < nodes; i++) {
+        const nx = cx - span / 2 + (span / (nodes - 1)) * i;
+        const pulse = i === active ? 1 + 0.12 * Math.sin(t * 6) : 1;
+        if (i === active) disc(nx, cy, nr * grow * pulse, accent);
+        else ring(nx, cy, nr * grow * pulse, thick, i < active ? alt : ink, 0.9);
+        if (i < nodes - 1) {
+          const ax0 = nx + nr * 1.25, ax1 = nx + span / (nodes - 1) - nr * 1.25;
+          line(ax0, cy, ax1, cy, 3, ink, 0.45);
+          g.poly([ax1, cy, ax1 - 14, cy - 10, ax1 - 14, cy + 10]).fill({ color: hex(ink), alpha: alpha * 0.45 });
+        }
+      }
+      return;
+    }
+
+    if (kind === 'orbit') {
+      disc(cx, cy, r * 0.22 * grow, accent);
+      for (let i = 0; i < 3; i++) {
+        const rx = r * (0.6 + i * 0.22) * grow, ry = rx * (0.38 + i * 0.06);
+        const ringPts: number[] = [];
+        for (let k = 0; k < 48; k++) {
+          const a2 = (k / 48) * Math.PI * 2;
+          ringPts.push(cx + Math.cos(a2) * rx, cy + Math.sin(a2) * ry);
+        }
+        g.poly(ringPts).stroke({ width: 3, color: hex(i === 1 ? alt : ink), alpha: alpha * 0.35 });
+        const ang = t * (0.9 + i * 0.35) + i * 2.1;
+        disc(cx + Math.cos(ang) * rx, cy + Math.sin(ang) * ry, r * 0.055, i === 1 ? alt : accent);
+      }
+      return;
+    }
+
+    if (kind === 'steps') {
+      const count = 4, sw = r * 0.42, sh = r * 0.3;
+      for (let i = 0; i < count; i++) {
+        const sx = cx - (count * sw) / 2 + i * sw;
+        const sy = cy + r * 0.7 - i * sh;
+        const lit = i <= Math.floor(t * 1.4);
+        if (lit) block(sx, sy - sh, sw, sh, i % 2 ? alt : accent);
+        else frame(sx, sy - sh, sw, sh, ink, 0.5);
+      }
+      return;
+    }
+
+    if (kind === 'grid') {
+      const cols = 8, rows = 5, gx = (r * 1.8) / cols, gy = (r * 1.2) / rows;
+      const sweep = (t * 0.55) % 1.6 - 0.3;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const near = clamp(1 - Math.abs(col / cols - sweep) * 3.2, 0, 1);
+          disc(cx - r * 0.9 + col * gx + gx / 2, cy - r * 0.6 + row * gy + gy / 2,
+            (style.id === 'pixel' ? 7 : 5) + near * 7, near > 0.3 ? accent : ink, (0.45 + 0.55 * near) * grow);
+        }
+      }
+      return;
+    }
+
+    if (kind === 'timeline') {
+      const x0 = cx - r * 0.95, x1 = cx + r * 0.95;
+      const head = clamp(t / 4, 0, 1);
+      line(x0, cy, x1, cy, 3, ink, 0.35);
+      line(x0, cy, lerp(x0, x1, head * grow), cy, 5, accent, 1);
+      for (let i = 0; i < 5; i++) {
+        const nx = lerp(x0, x1, i / 4);
+        const passed = head >= i / 4;
+        if (passed) disc(nx, cy, r * 0.055 * grow, i === 4 ? alt : accent);
+        else ring(nx, cy, r * 0.055 * grow, 3, ink, 0.6);
+      }
+      disc(lerp(x0, x1, head * grow), cy, r * 0.035, ink);
+      return;
+    }
+  }
+
   private drawDetail(scene: Scene, style: StyleDef, accent: string, cx: number, cy: number, r: number, t: number): void {
     const g = this.detail;
     g.clear();
@@ -487,8 +628,15 @@ class SceneView {
     const bob = Math.sin(t * 1.1) * (center ? 10 : 14);
     const rot = Math.sin(t * 0.35) * 0.06;
 
-    this.drawMotif(motifPoints(scene.motif), style, accent, cx, cy + bob, r, rot, center ? 0.22 : 1);
-    this.drawDetail(scene, style, accent, cx, cy + bob, r, t);
+    if (scene.visual && scene.visual !== 'motif') {
+      this.motif.clear();
+      this.drawDiagram(scene.visual, style, accent, cx, cy + bob, r, t, center ? 0.5 : 1);
+      this.detail.clear();
+    } else {
+      this.diagram.clear();
+      this.drawMotif(motifPoints(scene.motif), style, accent, cx, cy + bob, r, rot, center ? 0.22 : 1);
+      this.drawDetail(scene, style, accent, cx, cy + bob, r, t);
+    }
 
     this.layoutText(scene, style, accent, t, enter);
   }
