@@ -17,7 +17,7 @@ export const ASPECTS = {
 export const ASPECT_IDS = ['16:9', '9:16', '1:1', '4:5'] as const;
 export type AspectId = keyof typeof ASPECTS;
 
-export const STYLE_IDS = ['pixel', 'stick', 'neon', 'paper', 'cosmic', 'vhs'] as const;
+export const STYLE_IDS = ['pixel', 'stick', 'neon', 'paper', 'cosmic', 'vhs', 'blueprint', 'riso', 'chalk', 'swiss'] as const;
 export const VISUAL_IDS = ['motif', 'rings', 'bars', 'flow', 'orbit', 'steps', 'grid', 'timeline'] as const;
 export type VisualId = (typeof VISUAL_IDS)[number];
 

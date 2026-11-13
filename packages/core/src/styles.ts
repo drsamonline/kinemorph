@@ -30,7 +30,7 @@ export interface StyleDef {
     weightBody: string;
     spacing: number;
   };
-  background: 'stars' | 'ruled' | 'grid' | 'paper' | 'space' | 'sunset';
+  background: 'stars' | 'ruled' | 'grid' | 'paper' | 'space' | 'sunset' | 'blueprint' | 'riso' | 'chalk' | 'swiss';
 }
 
 export const STYLES: Record<StyleId, StyleDef> = {
@@ -75,6 +75,34 @@ export const STYLES: Record<StyleId, StyleDef> = {
     palette: { bg: '#12002e', bg2: '#480c53', ink: '#fff3d6', dim: '#63206b', accents: ['#ff2e88', '#00e5ff', '#ffb300', '#7cff5a'] },
     font: { display: 'Impact, sans-serif', body: 'monospace', weightDisplay: '400', weightBody: '700', spacing: 1 },
     background: 'sunset'
+  },
+  blueprint: {
+    id: 'blueprint', name: 'Blueprint', blurb: 'technical drawing, cyan grid',
+    width: 1920, height: 1080, smooth: true, glow: 0,
+    palette: { bg: '#0b2545', bg2: '#12335e', ink: '#e6f1ff', dim: '#1d3f6b', accents: ['#7fb3ff', '#ffd166', '#9ef0c8', '#ff9fb2'] },
+    font: { display: 'monospace', body: 'monospace', weightDisplay: '700', weightBody: '400', spacing: 2 },
+    background: 'blueprint'
+  },
+  riso: {
+    id: 'riso', name: 'Riso Print', blurb: 'two-ink overprint, paper grain',
+    width: 1920, height: 1080, smooth: true, glow: 0,
+    palette: { bg: '#f5efe3', bg2: '#ecdfcc', ink: '#26221d', dim: '#d8c9b0', accents: ['#ff4f4f', '#2f6fdb', '#f5b93f', '#2f8f6f'] },
+    font: { display: 'Arial Black, sans-serif', body: 'Georgia, serif', weightDisplay: '400', weightBody: '400', spacing: 0 },
+    background: 'riso'
+  },
+  chalk: {
+    id: 'chalk', name: 'Chalkboard', blurb: 'chalk on a dark board',
+    width: 1920, height: 1080, smooth: true, glow: 0,
+    palette: { bg: '#22301f', bg2: '#1b2620', ink: '#f4f1e8', dim: '#3a4a38', accents: ['#f6e58d', '#ff9f9f', '#a8e6cf', '#d5c6e0'] },
+    font: { display: 'cursive', body: 'cursive', weightDisplay: '700', weightBody: '400', spacing: 0 },
+    background: 'chalk'
+  },
+  swiss: {
+    id: 'swiss', name: 'Swiss Grid', blurb: 'white space, hard rules, one red',
+    width: 1920, height: 1080, smooth: true, glow: 0,
+    palette: { bg: '#f7f7f5', bg2: '#ececeb', ink: '#111111', dim: '#d6d6d4', accents: ['#e8342a', '#111111', '#3a6ff8', '#f2b705'] },
+    font: { display: 'Helvetica Neue, Arial, sans-serif', body: 'Helvetica Neue, Arial, sans-serif', weightDisplay: '700', weightBody: '400', spacing: -1 },
+    background: 'swiss'
   }
 };
 

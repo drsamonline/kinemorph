@@ -361,6 +361,32 @@ class SceneView {
         }
         break;
       }
+      case 'blueprint': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H).fill(hex(p.bg));
+        for (let i = 0; i <= 24; i++) g.rect(i * 80, 0, 2, DESIGN_H).fill({ color: hex('#7fb3ff'), alpha: 0.16 });
+        for (let i = 0; i <= 14; i++) g.rect(0, i * 80, DESIGN_W, 2).fill({ color: hex('#7fb3ff'), alpha: 0.16 });
+        g.rect(60, 60, DESIGN_W - 120, DESIGN_H - 120).stroke({ width: 4, color: hex(p.ink), alpha: 0.5 });
+        g.rect(84, 84, DESIGN_W - 168, DESIGN_H - 168).stroke({ width: 2, color: hex(p.ink), alpha: 0.28 });
+        break;
+      }
+      case 'riso': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H).fill(hex(p.bg));
+        g.poly(this.circlePts(DESIGN_W * 0.78, DESIGN_H * 0.24, 380)).fill({ color: hex(p.accents[0]), alpha: 0.2 });
+        g.poly(this.circlePts(DESIGN_W * 0.72, DESIGN_H * 0.3, 380)).fill({ color: hex(p.accents[1]), alpha: 0.18 });
+        break;
+      }
+      case 'chalk': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H).fill(hex(p.bg));
+        g.rect(48, 48, DESIGN_W - 96, DESIGN_H - 96).stroke({ width: 3, color: hex(p.ink), alpha: 0.1 });
+        break;
+      }
+      case 'swiss': {
+        g.rect(0, 0, DESIGN_W, DESIGN_H).fill(hex(p.bg));
+        g.rect(0, DESIGN_H * 0.86, DESIGN_W, 3).fill({ color: hex(p.dim), alpha: 1 });
+        g.rect(130, DESIGN_H * 0.86 - 14, 220, 14).fill({ color: hex(p.ink), alpha: 1 });
+        g.rect(DESIGN_W - 330, 90, 200, 10).fill({ color: hex(p.accents[0]), alpha: 1 });
+        break;
+      }
       case 'sunset': {
         g.rect(0, 0, DESIGN_W, DESIGN_H * 0.72).fill(hex('#7a1266'));
         g.circle(DESIGN_W / 2, DESIGN_H * 0.6, 200).fill({ color: 0xffdc78, alpha: 0.55 });
@@ -377,6 +403,15 @@ class SceneView {
         break;
       }
     }
+  }
+
+  private circlePts(cx: number, cy: number, r: number, n = 48): number[] {
+    const out: number[] = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      out.push(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    }
+    return out;
   }
 
   private motifGeometry(points: Pt[], cx: number, cy: number, r: number, rot: number): number[] {
@@ -432,6 +467,22 @@ class SceneView {
         g.poly(this.motifGeometry(points, cx, cy, r * 1.02, rot)).fill({ color, alpha: alpha * 0.16 });
         g.poly(flat).fill({ color, alpha: alpha * 0.92 });
         g.poly(flat).stroke({ width: 2, color: 0xffffff, alpha: alpha * 0.5, join: 'round' });
+        break;
+      case 'blueprint':
+        g.poly(flat).stroke({ width: 5, color, alpha, join: 'round' });
+        g.poly(flat).fill({ color, alpha: alpha * 0.1 });
+        break;
+      case 'riso':
+        g.poly(this.motifGeometry(points, cx + 10, cy - 8, r, rot)).fill({ color: hex(style.palette.accents[1]), alpha: alpha * 0.55 });
+        g.poly(flat).fill({ color, alpha: alpha * 0.92 });
+        break;
+      case 'chalk':
+        g.poly(flat).stroke({ width: 9, color, alpha: alpha * 0.55, join: 'round' });
+        g.poly(flat).stroke({ width: 5, color, alpha, join: 'round' });
+        break;
+      case 'swiss':
+        g.poly(flat).fill({ color, alpha });
+        g.poly(this.motifGeometry(points, cx, cy, r * 0.9, rot)).fill({ color: 0xffffff, alpha: alpha * 0.14 });
         break;
       case 'vhs':
         g.poly(this.motifGeometry(points, cx + 7, cy, r, rot)).fill({ color: 0x00e5ff, alpha: alpha * 0.8 });
@@ -678,7 +729,9 @@ class SceneView {
     body.style.fontWeight = style.font.weightBody as TextStyle['fontWeight'];
     body.style.wordWrapWidth = center ? (portrait ? DESIGN_W * 0.78 : 1180) : DESIGN_W * 0.41;
     body.style.align = center ? 'center' : 'left';
-    body.style.fill = style.id === 'stick' || style.id === 'paper' ? '#2a2a33' : 'rgba(240,244,255,0.88)';
+    /* decided by the background, so new dark styles do not get dark copy */
+    const lightBg = contrastRatio(style.palette.bg, '#000000') > 6;
+    body.style.fill = lightBg ? 'rgba(30,30,40,0.86)' : 'rgba(240,244,255,0.88)';
 
     /* fit the title into two lines */
     let size = center ? (portrait ? Math.round(DESIGN_W * 0.085) : 118) : 96;

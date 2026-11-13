@@ -195,7 +195,7 @@ check('every style produces legible accents', () => {
 
 check('every enum value has a renderer or engine path', () => {
   assert(MOTIF_IDS.length === 14, 'motif count changed');
-  assert(STYLE_IDS.length === 6, 'style count changed');
+  assert(STYLE_IDS.length === 10, 'style count changed');
   assert(TRANSITION_IDS.length === 7, 'transition count changed');
   assert(ENTER_IDS.length === 10, 'entrance count changed');
   assert(EASE_IDS.length === 8, 'easing count changed');

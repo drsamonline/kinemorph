@@ -37,7 +37,7 @@ test('every style × motif renders a stable frame', async ({ page }) => {
   const actual = (await page.evaluate(() => (window as unknown as { __HARNESS__: Matrix }).__HARNESS__)) as Matrix;
 
   const styles = Object.keys(actual);
-  expect(styles.length).toBe(6);
+  expect(styles.length).toBe(10);
   for (const style of styles) {
     expect(Object.keys(actual[style]).length).toBe(14);
   }
