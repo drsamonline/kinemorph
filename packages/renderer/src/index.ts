@@ -28,7 +28,7 @@ const isPortrait = () => DESIGN_H > DESIGN_W * 1.02;
 
 const hex = (value: string): number => parseInt(value.replace('#', ''), 16);
 
-const wordBase = new WeakMap<Text, { x: number; y: number }>();
+const wordBase = new WeakMap<Text, { x: number; y: number; line: number }>();
 
 interface TextBlock {
   container: Container;
@@ -359,7 +359,7 @@ class SceneView {
           obj.anchor.set(0, 0);
           obj.position.set(left + offset + item.x, top + li * lineHeight);
           obj.visible = true;
-          wordBase.set(obj, { x: obj.x, y: obj.y });
+          wordBase.set(obj, { x: obj.x, y: obj.y, line: li });
           index++;
         }
       }
@@ -369,7 +369,7 @@ class SceneView {
     for (let i = 0; i < this.wordTexts.length; i++) {
       const obj = this.wordTexts[i];
       if (!obj.visible) continue;
-      const base = wordBase.get(obj) ?? { x: obj.x, y: obj.y };
+      const base = wordBase.get(obj) ?? { x: obj.x, y: obj.y, line: 0 };
       const at = start + i * (fx === 'kinetic' ? 0.05 : 0.07);
       const k = clamp((t - at) / 0.45, 0, 1);
       obj.scale.set(1);
@@ -385,6 +385,13 @@ class SceneView {
         obj.position.set(base.x - (obj.width * (sc - 1)) / 2, base.y - (obj.height * (sc - 1)) / 2);
       } else if (fx === 'wave') {
         obj.position.set(base.x, base.y + Math.sin(t * 2.6 + i * 0.55) * 9);
+      } else if (fx === 'split') {
+        /* line-level, like Kinemotif: even lines arrive from the right */
+        const lp = clamp((t - start - base.line * 0.14) / 0.5, 0, 1);
+        const le = EASES.out(lp);
+        const dir = base.line % 2 === 0 ? 1 : -1;
+        obj.alpha = clamp(lp, 0, 1);
+        obj.position.set(base.x + (1 - le) * 120 * dir, base.y);
       } else if (fx === 'kinetic') {
         obj.rotation = (1 - e) * 0.5 * (i % 2 ? -1 : 1);
         obj.scale.set(0.4 + 0.6 * e);
@@ -902,7 +909,7 @@ class SceneView {
     if (fx !== 'shutter') body.mask = null;
 
     /* word-level effects hide the single Text and animate the word layer */
-    const wordFx = fx === 'pop' || fx === 'wave' || fx === 'kinetic';
+    const wordFx = fx === 'pop' || fx === 'wave' || fx === 'kinetic' || fx === 'split';
     if (wordFx) {
       body.alpha = 0;
       this.layoutWords(scene, style, full, left, bodyTop, maxW,

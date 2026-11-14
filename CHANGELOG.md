@@ -3,6 +3,17 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.15.0] — 2026-11-14
+
+### Added
+- **`split`**, the ninth text effect and the last one Kinemotif had and this did not. Whole lines
+  slide in from alternating sides, staggered by line — line-level rather than word-level, which
+  the word layer already had the positions to do.
+
+### Changed
+- Text effects now match Kinemotif exactly: reveal, typewriter, shutter, glitch, highlight, pop,
+  wave, kinetic, split.
+
 ## [0.14.0] — 2026-11-14
 
 ### Added
