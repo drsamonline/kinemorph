@@ -58,6 +58,7 @@ function sceneFor(styleId: (typeof STYLE_LIST)[number]['id'], motif: (typeof MOT
         body: '',
         motif,
         visual: 'motif',
+        textFx: 'reveal',
         dur: 6,
         layout: 'split',
         transition: 'none',

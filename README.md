@@ -30,6 +30,7 @@ scores its own soundtrack, and exports the result as video.
 | | |
 |---|---|
 | **10 art styles** | Pixel Arcade, Stick Figure, Neon Night, Paper Cut, Cosmic Dream, VHS Retro, Blueprint, Riso Print, Chalkboard, Swiss Grid |
+| **5 text effects** | reveal, typewriter, shutter, glitch, highlight — chosen per scene |
 | **7 diagrams** | bars, flow, rings, orbit, steps, grid, timeline — or 14 motifs |
 | **4 formats** | 16:9, 9:16 portrait, 1:1 square, 4:5 feed. The layout reflows; portrait is not a crop |
 | **Video export** | MP4 (H.264) or WebM (VP9), plus a WAV stem of the score |

@@ -18,6 +18,9 @@ export const ASPECT_IDS = ['16:9', '9:16', '1:1', '4:5'] as const;
 export type AspectId = keyof typeof ASPECTS;
 
 export const STYLE_IDS = ['pixel', 'stick', 'neon', 'paper', 'cosmic', 'vhs', 'blueprint', 'riso', 'chalk', 'swiss'] as const;
+export const TEXTFX_IDS = ['reveal', 'typewriter', 'shutter', 'glitch', 'highlight'] as const;
+export type TextFxId = (typeof TEXTFX_IDS)[number];
+
 export const VISUAL_IDS = ['motif', 'rings', 'bars', 'flow', 'orbit', 'steps', 'grid', 'timeline'] as const;
 export type VisualId = (typeof VISUAL_IDS)[number];
 
@@ -38,6 +41,8 @@ export const SceneSchema = z.object({
   motif: z.enum(MOTIF_IDS).default('sun'),
   /** motif, or one of seven diagrams */
   visual: z.enum(VISUAL_IDS).default('motif'),
+  /** how the body copy arrives */
+  textFx: z.enum(TEXTFX_IDS).default('reveal'),
   dur: z.number().min(1).max(30).default(5),
   layout: z.enum(['split', 'center']).default('split'),
   transition: z.enum(TRANSITION_IDS).default('morph'),

@@ -249,6 +249,7 @@ class SceneView {
   private motif = new Graphics();
   /* diagrams get their own object: reusing the motif Graphics dropped fills */
   private diagram = new Graphics();
+  private fxLayer!: Graphics;
   private detail = new Graphics();
   private textLayer: TextBlock;
   private sceneId: string;
@@ -260,6 +261,8 @@ class SceneView {
     this.sceneId = scene.id;
     this.container.addChild(this.bg, this.motif, this.diagram, this.detail);
     this.textLayer = SceneView.makeTextBlock();
+    this.fxLayer = new Graphics();
+    this.container.addChild(this.fxLayer);
     this.container.addChild(this.textLayer.container);
   }
 
@@ -746,16 +749,63 @@ class SceneView {
     title.position.set(left, titleY);
     title.anchor.set(0, 0);
 
-    /* word-by-word body reveal */
-    const words = (scene.body || '').split(/\s+/).filter(Boolean);
+    /* how the body arrives — five effects, all driven by the same clock */
+    const full = scene.body || '';
+    const words = full.split(/\s+/).filter(Boolean);
+    const fx = scene.textFx ?? 'reveal';
     const revealStart = center ? 0.55 : 0.62;
-    const shown = Math.floor(clamp((t - revealStart) / 0.09, 0, 9999));
-    const visible = words.slice(0, Math.min(words.length, shown)).join(' ');
+    let visible = full;
+
+    if (fx === 'typewriter') {
+      const chars = Math.floor(clamp((t - revealStart) / 0.035, 0, full.length));
+      visible = full.slice(0, chars);
+    } else if (fx === 'reveal') {
+      const shown = Math.floor(clamp((t - revealStart) / 0.09, 0, 9999));
+      visible = words.slice(0, Math.min(words.length, shown)).join(' ');
+    }
+
     if (body.text !== visible) body.text = visible;
 
     body.style.fontSize = center ? (portrait ? Math.round(DESIGN_W * 0.036) : 40) : 38;
     body.style.lineHeight = Math.round((center ? (portrait ? Math.round(DESIGN_W * 0.036) : 40) : 38) * 1.55);
     body.position.set(left, titleY + title.height + (center ? (portrait ? DESIGN_H * 0.05 : 60) : 90));
+
+    /* per-effect presentation */
+    this.fxLayer.clear();
+    body.alpha = 1;
+    body.tint = 0xffffff;
+    body.x = left;
+    const bodyTop = body.y;
+
+    if (fx === 'glitch') {
+      /* horizontal slices, not a box: a tear across the text block, with the
+         two tinted bands offset in opposite directions and moving per frame */
+      const bands = 4;
+      for (let i = 0; i < bands; i++) {
+        const phase = t * 3 + i * 1.7;
+        const y = bodyTop + ((Math.sin(phase) * 0.5 + 0.5) * body.height);
+        const h = body.style.lineHeight * 0.34;
+        const shift = (Math.sin(phase * 2.3) > 0 ? 1 : -1) * (4 + (i % 2) * 5);
+        this.fxLayer.rect(left + shift, y, body.width, h).fill({ color: i % 2 ? 0x00e5ff : 0xff2e88, alpha: 0.34 });
+      }
+    } else if (fx === 'highlight') {
+      /* a marker bar that sweeps behind each line */
+      const sweep = clamp((t - revealStart) / 1.1, 0, 1);
+      const lines = Math.max(1, Math.round(body.height / body.style.lineHeight));
+      for (let i = 0; i < lines; i++) {
+        const lineY = bodyTop + i * body.style.lineHeight + body.style.lineHeight * 0.16;
+        const w = body.width * clamp(sweep * lines - i, 0, 1);
+        if (w > 0) this.fxLayer.rect(left - 8, lineY, w + 16, body.style.lineHeight * 0.82)
+          .fill({ color: hex(accent), alpha: 0.26 });
+      }
+    } else if (fx === 'shutter') {
+      /* a hard wipe: the body is masked by a growing rectangle */
+      const open = clamp((t - revealStart) / 0.8, 0, 1);
+      this.fxLayer.rect(left - 10, bodyTop - 10, (body.width + 20) * open, body.height + 20).fill(0xffffff);
+      body.mask = this.fxLayer;
+    }
+
+    if (fx !== 'shutter') body.mask = null;
 
     /* entrance transform */
     let dx = 0, dy = 0, sx = 1, sy = 1, blur = 0;

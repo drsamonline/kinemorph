@@ -1,6 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ASPECTS, ASPECT_IDS, MOODS, EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
+  TEXTFX_IDS,
   TRANSITION_IDS, CAM_IDS, accentFor, buildCues, contrastRatio, formatTime,
   studioSelectors, totalDuration, useStudio, type Scene
 } from '@kinemorph/core';
@@ -464,6 +465,12 @@ function Inspector({
       <label className="field">Visual
         <select value={scene.motif} onChange={(e) => onChange({ motif: e.target.value as Scene['motif'] })}>
           {MOTIF_IDS.map((id) => <option key={id} value={id}>{MOTIF_LABELS[id]}</option>)}
+        </select>
+      </label>
+
+      <label className="field">Text effect
+        <select value={scene.textFx} onChange={(e) => onChange({ textFx: e.target.value as Scene['textFx'] })}>
+          {TEXTFX_IDS.map((id) => <option key={id} value={id}>{id}</option>)}
         </select>
       </label>
 

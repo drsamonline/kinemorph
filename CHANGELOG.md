@@ -3,6 +3,22 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] — 2026-11-14
+
+### Added
+- **Five text effects** — `reveal`, `typewriter`, `shutter`, `glitch` and `highlight` — chosen per
+  scene in the inspector. Until now every scene used the same word-by-word reveal.
+  - `typewriter` types the body character by character.
+  - `shutter` wipes the body in behind a hard mask.
+  - `glitch` cuts horizontal slices through the text block, tinted and offset per frame.
+  - `highlight` sweeps a marker bar behind each line.
+- The story engine cycles effects across scenes, so a generated show is no longer uniform.
+
+### Note
+- `pop`, `wave` and `kinetic` are not here: they animate individual words, which needs a per-word
+  layout pass. Kinemotif has them because it draws text on a canvas rather than through Pixi
+  `Text` objects.
+
 ## [0.11.0] — 2026-11-14
 
 ### Added

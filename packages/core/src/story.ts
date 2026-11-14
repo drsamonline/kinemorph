@@ -1,4 +1,4 @@
-import type { MotifId, Project, Scene, StyleId, TransitionId } from './model';
+import type { MotifId, Project, Scene, StyleId, TextFxId, TransitionId } from './model';
 import { accentFor } from './styles';
 
 /**
@@ -6,6 +6,8 @@ import { accentFor } from './styles';
  * derives a title from the first clause, and matches keywords to motifs. No
  * model, no network — which is why the whole studio can run offline.
  */
+
+const TEXTFX_CYCLE: TextFxId[] = ['reveal', 'reveal', 'typewriter', 'highlight', 'shutter', 'reveal', 'glitch'];
 
 const VISUAL_CYCLE = ['motif', 'motif', 'bars', 'flow', 'motif', 'rings', 'timeline', 'orbit', 'steps', 'grid'];
 
@@ -138,6 +140,7 @@ export function generateProject(text: string, options: GenerateOptions = {}): Pr
       body,
       motif,
       visual: VISUAL_CYCLE[index % VISUAL_CYCLE.length],
+      textFx: TEXTFX_CYCLE[index % TEXTFX_CYCLE.length],
       dur: (index === 0 ? 4.5 : 5.5) * pace,
       layout: index === 0 || (last && chunks.length > 2) ? 'center' : 'split',
       transition: options.transition ?? 'morph',

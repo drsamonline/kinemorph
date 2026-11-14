@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  ASPECT_IDS, CAM_IDS, VISUAL_IDS, EASE_IDS, ENTER_IDS, MOOD_IDS, MOTIF_IDS, STYLE_IDS, TRANSITION_IDS,
+  ASPECT_IDS, CAM_IDS, TEXTFX_IDS, VISUAL_IDS, EASE_IDS, ENTER_IDS, MOOD_IDS, MOTIF_IDS, STYLE_IDS, TRANSITION_IDS,
   type Project
 } from './model';
 
@@ -18,6 +18,7 @@ const ScenePatchSchema = z.object({
   body: z.string().max(400).optional(),
   motif: z.enum(MOTIF_IDS).optional(),
   visual: z.enum(VISUAL_IDS).optional(),
+  textFx: z.enum(TEXTFX_IDS).optional(),
   dur: z.number().min(1).max(30).optional(),
   layout: z.enum(['split', 'center']).optional(),
   transition: z.enum(TRANSITION_IDS).optional(),
