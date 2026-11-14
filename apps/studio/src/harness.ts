@@ -95,6 +95,41 @@ async function run(): Promise<void> {
     }
   }
 
+  /* A wipe between two differently styled scenes must draw each side in its own
+     palette. Read back the two halves of the frame and expose the gap, so the
+     test can assert it rather than trusting the code. */
+  const crossStyle = (() => {
+    const scene = (id: string, style: string, title: string) => ({
+      id, title, body: '', motif: 'sun' as const, visual: 'motif' as const, textFx: 'reveal' as const,
+      dur: 5, layout: 'center' as const, transition: 'wipe' as const, enter: 'fade' as const,
+      ease: 'linear' as const, cam: 'none' as const, accent: '#ff2d95', style
+    });
+    const project = {
+      schema: 1 as const, id: 'p_cross', title: 'cross', style: 'neon' as const, mood: 'none' as const,
+      pace: 1, aspect: '16:9' as const, musicSeed: 1, transition: 'wipe' as const,
+      scenes: [scene('c1', 'paper', 'Paper'), scene('c2', 'neon', 'Neon')]
+    };
+    renderer.render(project as never, 4.55);
+    const source = renderer.canvas;
+    const ctx2 = document.createElement('canvas');
+    ctx2.width = source.width;
+    ctx2.height = source.height;
+    const c2 = ctx2.getContext('2d');
+    if (!c2) return null;
+    c2.drawImage(source, 0, 0);
+    const band = (x0: number, w: number) => {
+      const d = c2.getImageData(x0, Math.round(source.height * 0.3), w, Math.round(source.height * 0.4)).data;
+      let sum = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4 * 37) { sum += (d[i] + d[i + 1] + d[i + 2]) / 3; n++; }
+      return sum / n;
+    };
+    const third = Math.round(source.width / 3);
+    const left = band(4, third - 8);
+    const right = band(source.width - third - 4, third - 8);
+    return { left, right, gap: Math.abs(left - right) };
+  })();
+
+  (window as unknown as { __CROSSSTYLE__: unknown }).__CROSSSTYLE__ = crossStyle;
   (window as unknown as { __HARNESS__: unknown }).__HARNESS__ = out;
   if (status) status.textContent = `done — ${count} frames`;
   document.title = 'HARNESS READY';

@@ -3,6 +3,16 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.17.0] — 2026-11-14
+
+### Added
+- **A cross-style transition test.** Per-scene styles arrived in 0.16.0 with nothing asserting that
+  a transition actually draws both palettes. The harness now renders a wipe between a Paper Cut
+  scene and a Neon one, reads back the two halves of the frame and exposes the gap;
+  `tests/crossstyle.spec.ts` fails if the halves differ by less than 25.
+  Proven in both directions: **227 vs 220 (gap 6.7) fails** when both scenes share a style, and
+  passes with the real code. Mirrors the guard Kinemotif got in 1.8.0.
+
 ## [0.16.0] — 2026-11-14
 
 ### Added

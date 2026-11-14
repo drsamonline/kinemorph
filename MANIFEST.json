@@ -43,7 +43,7 @@
       "class": "hand"
     },
     "CHANGELOG.md": {
-      "sha256": "1fdb41783493cd957ce9cdf5a25c01ec641b3a58d0fc3ef8b363d76981ea4a07",
+      "sha256": "497ee5fed6e65e950a9509217dbaa84a515697cdabbaf03545fbcdc10b8a0d59",
       "class": "hand"
     },
     "CITATION.cff": {
@@ -123,7 +123,7 @@
       "class": "source"
     },
     "apps/studio/src/harness.ts": {
-      "sha256": "8f592974e133a2a01a6b382430fed78f7634cafdb0dc37bc0915dbea9c7e3d39",
+      "sha256": "ec8757665abd6e2f261dc46eb2b4ed764a0b7de83dc782387d67181f7fd3b746",
       "class": "source"
     },
     "apps/studio/src/main.tsx": {
@@ -187,7 +187,7 @@
       "class": "hand"
     },
     "package.json": {
-      "sha256": "71b100cbffff884cb58c7268367673c99b1678d8af265b35a2706c90ddff139f",
+      "sha256": "2548e3990777e0d1bc742e0abac816fd6afd70d133f0e42652767a7aee9f8b1b",
       "class": "hand"
     },
     "packages/audio/package.json": {
@@ -310,8 +310,8 @@
       "sha256": "9ed91bb9c8619eb6175e469c1cb4bf876b374b3c693f75d830676e6faf9998b2",
       "class": "generated"
     },
-    "studio/assets/harness-kudugXUR.js": {
-      "sha256": "2c640e358b71fc08bf3736f711d22e929e9af184f9563a01c6953cb75d38947f",
+    "studio/assets/harness-DdUpt137.js": {
+      "sha256": "b03507f1f1efe9e8c92e5c40f5ce39f0d405463bcfb9bc1787a661445e1438c4",
       "class": "generated"
     },
     "studio/assets/index-Cs1uacwT.js": {
@@ -351,7 +351,7 @@
       "class": "generated"
     },
     "studio/harness.html": {
-      "sha256": "a63011859b7a209470c60ea26fc7a1876000b82abac1bda84e1dbfe13aac7edd",
+      "sha256": "8b3578f5b4faf31d17cb07f553f363317e9d76e4316dd0d4804e6df35acca6ac",
       "class": "generated"
     },
     "studio/index.html": {
@@ -361,6 +361,10 @@
     "studio/selftest.html": {
       "sha256": "3aa34f59f44571add49e9d4e84487c976ffcc69781879c978db000fef026a13c",
       "class": "generated"
+    },
+    "tests/crossstyle.spec.ts": {
+      "sha256": "95b96c194d60e3b47cfb383cc4c4bf1c5e3af2b22324a49a770d86daa2ffb1f3",
+      "class": "hand"
     },
     "tests/selftest.spec.ts": {
       "sha256": "bf29e6ce5e98d34dfbf665e12e9a92a3c27830cc34b6da883e6620d1ae712395",
