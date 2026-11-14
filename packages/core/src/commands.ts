@@ -19,6 +19,7 @@ const ScenePatchSchema = z.object({
   motif: z.enum(MOTIF_IDS).optional(),
   visual: z.enum(VISUAL_IDS).optional(),
   textFx: z.enum(TEXTFX_IDS).optional(),
+  style: z.enum(STYLE_IDS).optional(),
   dur: z.number().min(1).max(30).optional(),
   layout: z.enum(['split', 'center']).optional(),
   transition: z.enum(TRANSITION_IDS).optional(),

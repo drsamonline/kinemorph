@@ -161,7 +161,11 @@ export class SceneRenderer {
     this.layerA.mask = null;
     this.layerB.mask = null;
 
-    const style = this.style;
+    /* each scene may carry its own style; the project's is the fallback. The
+       renderer's resolution still follows the project style, so a per-scene
+       pixel style gets its palette and fonts but not its low-resolution buffer. */
+    const styleFor = (sc: Scene): StyleDef => STYLES[sc.style ?? project.style] ?? STYLES.neon;
+    const style = styleFor(frame.cue.scene);
     const viewA = this.view(frame.cue.scene);
     viewA.update(frame.cue.scene, style, frame.local);
     this.layerA.addChild(viewA.container);
@@ -173,7 +177,7 @@ export class SceneRenderer {
         this.composeMorph(viewA, nextScene, style, p, frame);
       } else {
         const viewB = this.view(nextScene);
-        viewB.update(nextScene, style, Math.max(0, frame.local - (sceneDuration(frame.cue.scene) - frame.transitionDuration)));
+        viewB.update(nextScene, styleFor(nextScene), Math.max(0, frame.local - (sceneDuration(frame.cue.scene) - frame.transitionDuration)));
         this.layerB.addChild(viewB.container);
         this.composeTransition(frame.transition, p, style);
       }
@@ -253,6 +257,7 @@ class SceneView {
   private motif = new Graphics();
   private wordTexts: Text[] = [];
   private wordKey = '';
+  private lastStyle = '';
   /* diagrams get their own object: reusing the motif Graphics dropped fills */
   private diagram = new Graphics();
   private fxLayer!: Graphics;
@@ -760,6 +765,13 @@ class SceneView {
 
   update(scene: Scene, style: StyleDef, t: number): void {
     this.sceneId = scene.id;
+    /* text metrics follow the font, so a style change means a re-layout */
+    if (this.lastStyle !== style.id) {
+      this.lastStyle = style.id;
+      this.titleText = '';
+      this.bodyText = '';
+      this.wordKey = '';
+    }
     this.currentMotif = scene.motif;
     const accent = ensureContrast(scene.accent, style.palette.bg, 3);
     this.currentAccent = accent;

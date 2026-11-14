@@ -482,6 +482,16 @@ function Inspector({
         </select>
       </label>
 
+      <label className="field">Style
+        <select
+          value={scene.style ?? ''}
+          onChange={(e) => onChange({ style: (e.target.value || undefined) as Scene['style'] })}
+        >
+          <option value="">Inherit the show</option>
+          {STYLE_LIST.map((st) => <option key={st.id} value={st.id}>{st.name}</option>)}
+        </select>
+      </label>
+
       <label className="field">Text effect
         <select value={scene.textFx} onChange={(e) => onChange({ textFx: e.target.value as Scene['textFx'] })}>
           {TEXTFX_IDS.map((id) => <option key={id} value={id}>{id}</option>)}

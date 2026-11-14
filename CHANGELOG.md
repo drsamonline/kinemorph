@@ -3,6 +3,23 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.16.0] — 2026-11-14
+
+### Added
+- **Per-scene styles.** A scene may override the show's style; unset means inherit. The renderer
+  resolves the style per layer, so a transition between two differently styled scenes draws each
+  in its own palette, fonts and motif treatment. Picker in the inspector, "Inherit the show" by
+  default.
+
+### Note
+- The renderer's resolution still follows the project style, so a scene that overrides to Pixel
+  Arcade gets its palette and fonts but not its 480×270 buffer. Stated rather than hidden: making
+  the buffer per-layer means a second render target and a second golden baseline.
+
+### Verified
+- A neon show with scene 1 overridden to Paper Cut renders cream, Georgia serif and the paper
+  motif treatment — checked on screen, not inferred.
+
 ## [0.15.0] — 2026-11-14
 
 ### Added

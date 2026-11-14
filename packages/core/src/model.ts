@@ -43,6 +43,8 @@ export const SceneSchema = z.object({
   visual: z.enum(VISUAL_IDS).default('motif'),
   /** how the body copy arrives */
   textFx: z.enum(TEXTFX_IDS).default('reveal'),
+  /** overrides the project style for this scene; undefined inherits */
+  style: z.enum(STYLE_IDS).optional(),
   dur: z.number().min(1).max(30).default(5),
   layout: z.enum(['split', 'center']).default('split'),
   transition: z.enum(TRANSITION_IDS).default('morph'),
