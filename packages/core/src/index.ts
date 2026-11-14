@@ -1,5 +1,6 @@
 export * from './model';
 export * from './moods';
+export * from './score-plan';
 export * from './motifs';
 export * from './styles';
 export * from './easing';

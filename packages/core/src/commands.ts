@@ -34,7 +34,8 @@ const ProjectPatchSchema = z.object({
   mood: z.enum(MOOD_IDS).optional(),
   pace: z.number().min(0.5).max(2).optional(),
   transition: z.enum(TRANSITION_IDS).optional(),
-  aspect: z.enum(ASPECT_IDS).optional()
+  aspect: z.enum(ASPECT_IDS).optional(),
+  musicSeed: z.number().int().min(0).optional()
 }).strict();
 
 export const CommandSchema = z.discriminatedUnion('type', [

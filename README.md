@@ -34,7 +34,7 @@ scores its own soundtrack, and exports the result as video.
 | **7 diagrams** | bars, flow, rings, orbit, steps, grid, timeline — or 14 motifs |
 | **4 formats** | 16:9, 9:16 portrait, 1:1 square, 4:5 feed. The layout reflows; portrait is not a crop |
 | **Video export** | MP4 (H.264) or WebM (VP9), plus a WAV stem of the score |
-| **Generative score** | Seven moods, generated from a seed so a show sounds the same every time it is opened |
+| **Seeded score** | Seven moods, six timbre bands. The seed picks the instruments, tempo and key, so two shows in the same mood sound different — and the same show sounds the same every time |
 
 ## Output formats
 

@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { MOODS, MOOD_LIST, type MoodId } from '@kinemorph/core';
+import { MOODS, MOOD_LIST, planScore, type MoodId } from '@kinemorph/core';
 export { MOODS, MOOD_LIST };
 
 /**
@@ -43,7 +43,8 @@ export function buildScore(moodId: MoodId, seconds: number, seed = 1): NoteEvent
     return state / 4294967296;
   };
 
-  const stepDur = 60 / mood.bpm / 4;
+  const plan = planScore(moodId, seed);
+  const stepDur = 60 / plan.bpm / 4;
   const steps = Math.ceil(seconds / stepDur);
   const events: NoteEvent[] = [];
 
@@ -52,7 +53,7 @@ export function buildScore(moodId: MoodId, seconds: number, seed = 1): NoteEvent
     const bar = Math.floor(step / 16);
     const inBar = step % 16;
     const chordIndex = Math.floor(bar / 2) % mood.progression.length;
-    const chord = mood.progression[chordIndex].map((d) => degreeToMidi(mood.root, mood.scale, d));
+    const chord = mood.progression[chordIndex].map((d) => degreeToMidi(mood.root + plan.rootShift, mood.scale, d));
     const swing = inBar % 2 === 1 ? stepDur * mood.swing : 0;
 
     if (inBar === 0) {
@@ -111,6 +112,22 @@ export class LiveScore {
   private part: Tone.Part | null = null;
   private mood: MoodId = 'uplifting';
   private running = false;
+  private plan: ReturnType<typeof planScore> | null = null;
+
+  /** the seed decides the instruments, not just the note order */
+  private applyPlan(plan: ReturnType<typeof planScore>): void {
+    if (this.pad) {
+      this.pad.set({ oscillator: { type: plan.padWave } });
+      this.pluck?.set({ oscillator: { type: plan.pluckWave } });
+      this.bass?.set({ oscillator: { type: plan.bassWave } });
+    }
+    if (this.reverb) this.reverb.wet.value = plan.reverbWet;
+    if (this.bass?.filter) this.bass.filter.frequency.value = plan.cutoff;
+    this.plan = plan;
+  }
+
+  /** what the seed chose — the editor reads this for its readout */
+  get currentPlan(): ReturnType<typeof planScore> | null { return this.plan; }
 
   private build(): void {
     if (this.pad) return;
@@ -143,10 +160,11 @@ export class LiveScore {
     this.snare.volume.value = -18;
   }
 
-  async start(mood: MoodId, duration: number): Promise<void> {
+  async start(mood: MoodId, duration: number, seed = 1): Promise<void> {
     if (mood === 'none') return;
     await Tone.start();
     this.build();
+    this.applyPlan(planScore(mood, seed));
     this.stop();
     this.mood = mood;
 
@@ -201,12 +219,12 @@ export class LiveScore {
  * OfflineAudioContext — no Tone, no transport, sample-accurate, and identical
  * on every run. This is the audio half of a deterministic export.
  */
-export async function renderScoreOffline(moodId: MoodId, seconds: number, sampleRate = 48000): Promise<AudioBuffer | null> {
+export async function renderScoreOffline(moodId: MoodId, seconds: number, sampleRate = 48000, seed = 1): Promise<AudioBuffer | null> {
   const mood = MOODS[moodId];
   if (!mood || mood.bpm === 0) return null;
 
   const ctx = new OfflineAudioContext(2, Math.ceil(seconds * sampleRate), sampleRate);
-  const events = buildScore(moodId, seconds);
+  const events = buildScore(moodId, seconds, seed);
 
   const master = ctx.createGain();
   master.gain.value = 0.9;

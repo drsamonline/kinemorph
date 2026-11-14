@@ -159,6 +159,7 @@ export function generateProject(text: string, options: GenerateOptions = {}): Pr
     mood: options.mood ?? 'uplifting',
     pace,
     aspect: options.aspect ?? '16:9',
+    musicSeed: Math.floor(Math.random() * 0xffffffff),
     transition: options.transition ?? 'morph',
     scenes
   };

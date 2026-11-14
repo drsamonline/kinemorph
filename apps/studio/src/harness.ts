@@ -48,6 +48,7 @@ function sceneFor(styleId: (typeof STYLE_LIST)[number]['id'], motif: (typeof MOT
     mood: 'none',
     pace: 1,
     aspect: '16:9',
+    musicSeed: 1,
     transition: 'none',
     scenes: [
       {

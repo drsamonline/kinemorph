@@ -3,6 +3,20 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.13.0] — 2026-11-14
+
+### Added
+- **A seeded score.** Every project carries a `musicSeed`; the seed decides the timbre band
+  (glass, warm, grit, chip, deep, bright), the tempo within ±6% of the mood, the key (root shifted
+  −3 to +3 semitones) and the density. Before this every project played seed 1 and therefore
+  sounded the same.
+- **Score readout and "New score"** in the editor: `chip · 118 BPM · seed 604406451`.
+- `planScore()` / `describePlan()` in `@kinemorph/core` — pure data, testable without audio.
+
+### Verified
+- Three re-rolls produced bright, warm and grit at 111, 119 and 110 BPM.
+- 1000 seeds spread evenly across the six bands (~166 each).
+
 ## [0.12.0] — 2026-11-14
 
 ### Added

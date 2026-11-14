@@ -60,6 +60,8 @@ export const ProjectSchema = z.object({
   mood: z.enum(MOOD_IDS).default('uplifting'),
   pace: z.number().min(0.5).max(2).default(1),
   aspect: z.enum(ASPECT_IDS).default('16:9'),
+  /** 0 means "not chosen yet"; the studio fills it on first play */
+  musicSeed: z.number().int().min(0).default(0),
   transition: z.enum(TRANSITION_IDS).default('morph'),
   scenes: z.array(SceneSchema).min(1)
 });

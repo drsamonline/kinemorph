@@ -2,7 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import {
   ASPECTS, ASPECT_IDS, MOODS, EASE_IDS, ENTER_IDS, MOTIF_IDS, MOTIF_LABELS, MOOD_IDS, STYLE_LIST, STYLES,
   TEXTFX_IDS,
-  TRANSITION_IDS, CAM_IDS, accentFor, buildCues, contrastRatio, formatTime,
+  TRANSITION_IDS, CAM_IDS, accentFor, describePlan, planScore, buildCues, contrastRatio, formatTime,
   studioSelectors, totalDuration, useStudio, type Scene
 } from '@kinemorph/core';
 import { SceneRenderer } from '@kinemorph/renderer';
@@ -106,7 +106,7 @@ export function App() {
     if (!playing) { scoreRef.current?.stop(); return; }
     let cancelled = false;
     void ensureScore().then((score) => {
-      if (!cancelled) void score.start(project.mood, duration);
+      if (!cancelled) void score.start(project.mood, duration, project.musicSeed || 1);
     });
     return () => { cancelled = true; };
   }, [playing, project.mood, duration, ensureScore]);
@@ -284,6 +284,20 @@ export function App() {
             <option key={id} value={id}>{MOODS[id].label}</option>
           ))}
         </select>
+
+        {/* the seed decides the band, tempo and key, not just the note order */}
+        <div className="seedrow">
+          <span className="seedlabel" title="Two shows with the same mood still sound different">
+            {project.mood === 'none' ? 'silent' : describePlan(planScore(project.mood, project.musicSeed || 1))}
+          </span>
+          <button
+            className="ghost"
+            disabled={project.mood === 'none'}
+            onClick={() => dispatch({ type: 'project.patch', patch: { musicSeed: Math.floor(Math.random() * 0xffffffff) } })}
+          >
+            New score
+          </button>
+        </div>
       </aside>
 
       <main className="center">

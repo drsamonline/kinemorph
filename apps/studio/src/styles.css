@@ -256,3 +256,7 @@ button { cursor: pointer; }
 .crash p { color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
 .crash pre { background: #0a0c12; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-size: 12px; color: #ffb4b4; overflow: auto; }
 .crash button { margin-top: 14px; }
+
+.seedrow { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.seedlabel { font-size: 11px; color: var(--muted); flex: 1; letter-spacing: .02em; }
+.seedrow button { font-size: 11px; padding: 5px 10px; }
