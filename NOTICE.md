@@ -35,6 +35,12 @@ The unmodified package is fetched from npm and its source is published at
 https://github.com/Vanilagy/mediabunny. This repository does not modify it. If you fork Kinemorph
 and patch `mediabunny` itself, you must publish that patched file under MPL-2.0.
 
+## Adapted code
+
+| Source | Licence | What was taken |
+|---|---|---|
+| [motion-kit](https://github.com/drsamonline/motion-kit) | MIT | The spring derivation in `packages/core/src/easing.ts`: omega computed from the unit spring's settle time, so a spring that settles in 900 ms means that. Rewritten for this codebase, credited because the method is theirs. |
+
 ## Fonts and assets
 
 No fonts, images or audio files are bundled. Every visual is drawn at runtime by code in

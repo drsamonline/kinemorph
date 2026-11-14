@@ -27,7 +27,7 @@ export const MOTIF_IDS = [
 ] as const;
 export const TRANSITION_IDS = ['morph', 'fade', 'slide', 'wipe', 'iris', 'glitch', 'none'] as const;
 export const ENTER_IDS = ['rise', 'fade', 'zoom', 'slide', 'slideR', 'drop', 'flip', 'blur', 'pop', 'none'] as const;
-export const EASE_IDS = ['linear', 'out', 'inOut', 'back', 'expo', 'elastic', 'bounce', 'spring'] as const;
+export const EASE_IDS = ['linear', 'out', 'inOut', 'back', 'expo', 'elastic', 'bounce', 'spring', 'springSoft'] as const;
 export const CAM_IDS = ['in', 'out', 'pan', 'none'] as const;
 export const MOOD_IDS = ['uplifting', 'calm', 'epic', 'playful', 'tense', 'lofi', 'none'] as const;
 

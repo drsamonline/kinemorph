@@ -198,7 +198,7 @@ check('every enum value has a renderer or engine path', () => {
   assert(STYLE_IDS.length === 10, 'style count changed');
   assert(TRANSITION_IDS.length === 7, 'transition count changed');
   assert(ENTER_IDS.length === 10, 'entrance count changed');
-  assert(EASE_IDS.length === 8, 'easing count changed');
+  assert(EASE_IDS.length === 9, 'easing count changed');
   assert(CAM_IDS.length === 4, 'camera count changed');
   assert(MOOD_IDS.length === 7, 'mood count changed');
   for (const id of EASE_IDS) {

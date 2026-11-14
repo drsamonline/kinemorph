@@ -3,6 +3,20 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.11.0] — 2026-11-14
+
+### Added
+- **`springSoft`** easing, and a real **`spring`**.
+
+### Fixed
+- `spring` was `1 - cos(x * 1.5π) * exp(-5x)` — it looked bouncy but had no damping ratio, no
+  settle time, and did not end where it claimed. It is now a damped harmonic oscillator with
+  omega derived the way motion-kit derives it, so "settles in 900 ms" is true.
+
+### Credit
+- The spring method is adapted from [motion-kit](https://github.com/drsamonline/motion-kit) (MIT),
+  noted in `NOTICE.md`.
+
 ## [0.10.0] — 2026-11-14
 
 ### Changed
