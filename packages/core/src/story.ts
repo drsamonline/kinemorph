@@ -7,7 +7,7 @@ import { accentFor } from './styles';
  * model, no network — which is why the whole studio can run offline.
  */
 
-const TEXTFX_CYCLE: TextFxId[] = ['reveal', 'reveal', 'typewriter', 'highlight', 'shutter', 'reveal', 'glitch'];
+const TEXTFX_CYCLE: TextFxId[] = ['reveal', 'reveal', 'typewriter', 'highlight', 'shutter', 'reveal', 'glitch', 'pop', 'wave', 'kinetic'];
 
 const VISUAL_CYCLE = ['motif', 'motif', 'bars', 'flow', 'motif', 'rings', 'timeline', 'orbit', 'steps', 'grid'];
 

@@ -28,11 +28,15 @@ const isPortrait = () => DESIGN_H > DESIGN_W * 1.02;
 
 const hex = (value: string): number => parseInt(value.replace('#', ''), 16);
 
+const wordBase = new WeakMap<Text, { x: number; y: number }>();
+
 interface TextBlock {
   container: Container;
   title: Text;
   body: Text;
   blur: BlurFilter;
+  /** one Text per word, for the word-level effects */
+  wordLayer: Container;
 }
 
 export interface RendererOptions {
@@ -247,6 +251,8 @@ class SceneView {
   readonly container = new Container();
   private bg = new Graphics();
   private motif = new Graphics();
+  private wordTexts: Text[] = [];
+  private wordKey = '';
   /* diagrams get their own object: reusing the motif Graphics dropped fills */
   private diagram = new Graphics();
   private fxLayer!: Graphics;
@@ -295,8 +301,96 @@ class SceneView {
         lineHeight: 58
       })
     });
-    container.addChild(title, body);
-    return { container, title, body, blur };
+    const wordLayer = new Container();
+    container.addChild(title, body, wordLayer);
+    return { container, title, body, blur, wordLayer };
+  }
+
+  /**
+   * Lay the body out word by word and animate each word.
+   *
+   * Pixi gives one Text per word, so the wrap is measured here rather than
+   * delegated to a single Text object. That measurement is the whole reason
+   * this is a separate path from the single-object effects.
+   */
+  private layoutWords(
+    scene: Scene, style: StyleDef, bodyText: string, left: number, top: number,
+    maxW: number, fontSize: number, lineHeight: number, center: boolean,
+    fx: string, t: number, start: number, colour: string
+  ): void {
+    const layer = this.textLayer.wordLayer;
+    const key = `${scene.id}|${style.id}|${bodyText}|${Math.round(maxW)}|${fontSize}|${center}`;
+    const words = bodyText.split(/\s+/).filter(Boolean);
+
+    if (key !== this.wordKey) {
+      this.wordKey = key;
+      const probe = this.wordTexts[0] ?? new Text({ text: '', style: {} });
+      probe.style.fontFamily = style.font.body;
+      probe.style.fontWeight = style.font.weightBody as TextStyle['fontWeight'];
+      probe.style.fontSize = fontSize;
+      probe.anchor.set(0, 0);
+      const measure = (w: string) => { probe.text = w; return probe.width; };
+      const gap = measure(' ') || fontSize * 0.28;
+
+      const lines: { w: string; x: number; width: number }[][] = [];
+      let row: { w: string; x: number; width: number }[] = [];
+      let cursor = 0;
+      for (const word of words) {
+        const width = measure(word);
+        if (cursor > 0 && cursor + width > maxW) { lines.push(row); row = []; cursor = 0; }
+        row.push({ w: word, x: cursor, width });
+        cursor += width + gap;
+      }
+      if (row.length) lines.push(row);
+
+      let index = 0;
+      for (let li = 0; li < lines.length; li++) {
+        const lineRow = lines[li];
+        const rowW = lineRow.length ? lineRow[lineRow.length - 1].x + lineRow[lineRow.length - 1].width : 0;
+        const offset = center ? (maxW - rowW) / 2 : 0;
+        for (const item of lineRow) {
+          let obj = this.wordTexts[index];
+          if (!obj) { obj = new Text({ text: '', style: {} }); this.wordTexts.push(obj); layer.addChild(obj); }
+          obj.text = item.w;
+          obj.style.fontFamily = style.font.body;
+          obj.style.fontWeight = style.font.weightBody as TextStyle['fontWeight'];
+          obj.style.fontSize = fontSize;
+          obj.style.fill = colour;
+          obj.anchor.set(0, 0);
+          obj.position.set(left + offset + item.x, top + li * lineHeight);
+          obj.visible = true;
+          wordBase.set(obj, { x: obj.x, y: obj.y });
+          index++;
+        }
+      }
+      for (let i = index; i < this.wordTexts.length; i++) this.wordTexts[i].visible = false;
+    }
+
+    for (let i = 0; i < this.wordTexts.length; i++) {
+      const obj = this.wordTexts[i];
+      if (!obj.visible) continue;
+      const base = wordBase.get(obj) ?? { x: obj.x, y: obj.y };
+      const at = start + i * (fx === 'kinetic' ? 0.05 : 0.07);
+      const k = clamp((t - at) / 0.45, 0, 1);
+      obj.scale.set(1);
+      obj.rotation = 0;
+      obj.position.set(base.x, base.y);
+      obj.alpha = k <= 0 ? 0 : clamp(k * 2, 0, 1);
+      if (k <= 0) continue;
+      const e = EASES.back(k);
+
+      if (fx === 'pop') {
+        const sc = 0.6 + 0.4 * e;
+        obj.scale.set(sc);
+        obj.position.set(base.x - (obj.width * (sc - 1)) / 2, base.y - (obj.height * (sc - 1)) / 2);
+      } else if (fx === 'wave') {
+        obj.position.set(base.x, base.y + Math.sin(t * 2.6 + i * 0.55) * 9);
+      } else if (fx === 'kinetic') {
+        obj.rotation = (1 - e) * 0.5 * (i % 2 ? -1 : 1);
+        obj.scale.set(0.4 + 0.6 * e);
+        obj.position.set(base.x + (1 - e) * (i % 2 ? 40 : -40), base.y + (1 - e) * 26);
+      }
+    }
   }
 
   private isCenter(scene: Scene): boolean {
@@ -806,6 +900,18 @@ class SceneView {
     }
 
     if (fx !== 'shutter') body.mask = null;
+
+    /* word-level effects hide the single Text and animate the word layer */
+    const wordFx = fx === 'pop' || fx === 'wave' || fx === 'kinetic';
+    if (wordFx) {
+      body.alpha = 0;
+      this.layoutWords(scene, style, full, left, bodyTop, maxW,
+        body.style.fontSize as number, body.style.lineHeight as number, center,
+        fx, t, revealStart, String(body.style.fill));
+    } else if (this.wordKey) {
+      this.wordKey = '';
+      for (const w of this.wordTexts) w.visible = false;
+    }
 
     /* entrance transform */
     let dx = 0, dy = 0, sx = 1, sy = 1, blur = 0;

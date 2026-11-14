@@ -3,6 +3,21 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] — 2026-11-14
+
+### Added
+- **Three word-level text effects** — `pop`, `wave` and `kinetic` — bringing the set to eight.
+  These animate each word on its own stagger, which needed a real change: Pixi draws the body as
+  one `Text` object, so the renderer now lays the body out word by word, measuring and wrapping
+  manually, and pools one `Text` per word.
+  - `pop`: each word scales up from 0.6 as it arrives.
+  - `wave`: words ride a slow sine, offset by their index.
+  - `kinetic`: words rotate and slide in from alternating sides.
+
+### Note
+- The word layout is cached per `(scene, style, text, wrap width, font size, alignment)` and
+  rebuilt only when one of those changes.
+
 ## [0.13.0] — 2026-11-14
 
 ### Added
