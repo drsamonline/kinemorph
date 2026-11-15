@@ -37,6 +37,9 @@ jobs:
       - name: Local references
         run: node tools/check-links.mjs
 
+      - name: Numbers in the prose match the code
+        run: node tools/check-docs.mjs
+
       - name: Manifest is complete
         run: node tools/manifest.mjs --check
 

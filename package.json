@@ -1,7 +1,7 @@
 {
   "name": "kinemorph",
   "private": true,
-  "version": "0.17.0",
+  "version": "0.17.1",
   "type": "module",
   "workspaces": [
     "packages/*",
@@ -12,7 +12,7 @@
     "build": "npm run build -w @kinemorph/studio",
     "preview": "npm run preview -w @kinemorph/studio",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "check": "node tools/check-links.mjs",
+    "check": "node tools/check-links.mjs && node tools/check-docs.mjs",
     "test": "playwright test",
     "test:update": "UPDATE_SIGNATURES=1 playwright test signatures",
     "verify:export": "node tools/verify-export.mjs"

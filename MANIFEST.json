@@ -23,7 +23,7 @@
       "class": "tooling"
     },
     ".github/workflows/ci.yml": {
-      "sha256": "7cf64ef40b576c2a6ede29ad8820092f8d9bd4995a705058a5bd1cfca3489ab9",
+      "sha256": "d8e8337c9d3a6ae7de5a9e027bca8b93c8a4a31a92b3f4881179278dbfe1bef9",
       "class": "tooling"
     },
     ".github/workflows/release.yml": {
@@ -43,7 +43,7 @@
       "class": "hand"
     },
     "CHANGELOG.md": {
-      "sha256": "497ee5fed6e65e950a9509217dbaa84a515697cdabbaf03545fbcdc10b8a0d59",
+      "sha256": "eb67432f4bace1941d0fc83c66ab19cf187bb75fa36d58f7ccde29731ce8d4da",
       "class": "hand"
     },
     "CITATION.cff": {
@@ -75,7 +75,7 @@
       "class": "hand"
     },
     "README.md": {
-      "sha256": "1819d9429a6cf74b3a6d9f2b72707c65732685b8604c310c881e3d3fd2997b38",
+      "sha256": "8e213872a0a148bd93d289a8e0d71fd464aab19fd8733bcd0c68a47df6940705",
       "class": "hand"
     },
     "SECURITY.md": {
@@ -183,11 +183,11 @@
       "class": "hand"
     },
     "package-lock.json": {
-      "sha256": "8366c56531fbd21db1fe52eaaabf4cde1e3c3e6eb1567b3f9da63247f637bd85",
+      "sha256": "1d83a7647718a617e90139cfe1b92a262596efbe8e3c6c7e6b680a238c3ec779",
       "class": "hand"
     },
     "package.json": {
-      "sha256": "2548e3990777e0d1bc742e0abac816fd6afd70d133f0e42652767a7aee9f8b1b",
+      "sha256": "d518321bb6012f20d8e752273e66320fd46d3bdef13b11e8e59d3e351dd8fd22",
       "class": "hand"
     },
     "packages/audio/package.json": {
@@ -381,6 +381,10 @@
     "tests/studio.spec.ts": {
       "sha256": "f03fbb672993fa82cabb209860a329ba97e0fd010b48c51938a584031aa43634",
       "class": "hand"
+    },
+    "tools/check-docs.mjs": {
+      "sha256": "ad5ca701715d4491f6638e9738c29e02d9d41b7ba868ad1a4e8d3530b3b267bf",
+      "class": "tooling"
     },
     "tools/check-links.mjs": {
       "sha256": "3c0d7cec71746a3d42866e824b6fc9cd6b6723030171e97e1adbf8c596f14a2f",

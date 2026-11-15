@@ -3,6 +3,29 @@
 All notable changes to Kinemorph. Format follows [Keep a Changelog](https://keepachangelog.com/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.17.1] — 2026-11-15
+
+### Corrected
+- **The parity claim, withdrawn properly.** The session handover said this product was short
+  "four motifs, one transition and three moods". The motif and mood counts are right. The
+  transition count is not: Kinemorph has no `zoom` and no `blinds`, so it is **two** short.
+- **The 8-versus-7 in the capability table compared two conventions.** Kinemotif's 8 excluded
+  `none`; this product's 7 included it. Counted the same way the two numbers are 8 and 6.
+- **The withdrawn claim was never in this changelog.** The handover said both corrected errors
+  were recorded here; only the per-scene-styling one was. It is now.
+
+### Added
+- **`tools/check-docs.mjs`** reads every capability number in `README.md` and `docs/testing.md`
+  against the id unions in `packages/core/src/model.ts` and fails when they disagree. It runs in
+  `npm run check` and in CI beside `check-links.mjs`. Proven by running it before the fix: it
+  named both problems, and neither was visible to any other check.
+- `README.md` now states the transitions, says that Silent is one of the seven moods, and names
+  the two transitions this product does not have yet.
+
+### Note
+- `node tools/check-version.mjs` fails until `v0.17.1` is tagged. Tagging is the owner's call,
+  so this entry does not tag itself.
+
 ## [0.17.0] — 2026-11-14
 
 ### Added
