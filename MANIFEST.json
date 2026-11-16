@@ -433,6 +433,12 @@
       "producer": "app-deliver@2026-11-04",
       "class": "generated",
       "at": "2026-11-16T13:28:51Z"
+    },
+    "docs/play/manifest.webmanifest": {
+      "sha": "584322e7c938c35483499bd43792245bcc741580",
+      "producer": "app-deliver@2026-11-04",
+      "class": "generated",
+      "at": "2026-11-16T13:28:55Z"
     }
   }
 }
