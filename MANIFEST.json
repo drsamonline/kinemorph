@@ -415,6 +415,12 @@
       "producer": "app-deliver@2026-11-04",
       "class": "generated",
       "at": "2026-11-16T13:28:40Z"
+    },
+    "docs/robots.txt": {
+      "sha": "9d43623a79438ec2918c17312dedb33399b6d801",
+      "producer": "app-deliver@2026-11-04",
+      "class": "generated",
+      "at": "2026-11-16T13:28:44Z"
     }
   }
 }
