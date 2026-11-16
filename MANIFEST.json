@@ -421,6 +421,12 @@
       "producer": "app-deliver@2026-11-04",
       "class": "generated",
       "at": "2026-11-16T13:28:44Z"
+    },
+    "docs/sitemap.xml": {
+      "sha": "852b40c35c349eb29e75a8808bedb8157fa389aa",
+      "producer": "app-deliver@2026-11-04",
+      "class": "generated",
+      "at": "2026-11-16T13:28:47Z"
     }
   }
 }
