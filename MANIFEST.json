@@ -427,6 +427,12 @@
       "producer": "app-deliver@2026-11-04",
       "class": "generated",
       "at": "2026-11-16T13:28:47Z"
+    },
+    "docs/play/index.html": {
+      "sha": "47905243ca5e35532d2f75b290fb3ec639cfa89b",
+      "producer": "app-deliver@2026-11-04",
+      "class": "generated",
+      "at": "2026-11-16T13:28:51Z"
     }
   }
 }
