@@ -409,6 +409,12 @@
     "tsconfig.json": {
       "sha256": "4eeb6c968177b3f8766f8c75f1bf1bdbadd33421174400a661f8fd99188ab928",
       "class": "hand"
+    },
+    "docs/index.html": {
+      "sha": "5e25a4f412df60c1e01e6e71f40730db93199c6c",
+      "producer": "app-deliver@2026-11-04",
+      "class": "generated",
+      "at": "2026-11-16T13:28:40Z"
     }
   }
 }
