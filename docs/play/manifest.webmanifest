@@ -1,0 +1,17 @@
+{
+  "name": "Kinemorph Studio",
+  "short_name": "Kinemorph",
+  "description": "A browser animation studio with frame-exact MP4 export.",
+  "id": "./",
+  "start_url": "./studio/index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#08090f",
+  "theme_color": "#5b7cff",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["design", "productivity", "video"],
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
