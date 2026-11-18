@@ -32,10 +32,11 @@ scores its own soundtrack, and exports the result as video.
 | **10 art styles** | Pixel Arcade, Stick Figure, Neon Night, Paper Cut, Cosmic Dream, VHS Retro, Blueprint, Riso Print, Chalkboard, Swiss Grid |
 | **Per-scene styles** | any scene can take a different style from the show; transitions draw each side in its own palette |
 | **9 text effects** | reveal, typewriter, shutter, glitch, highlight, pop, wave, kinetic, split — chosen per scene |
+| **6 transitions** | morph, fade, slide, wipe, iris, glitch — plus `none` for a hard cut. Kinemotif also has `zoom` and `blinds`, and this product does not yet |
 | **7 diagrams** | bars, flow, rings, orbit, steps, grid, timeline — or 14 motifs |
 | **4 formats** | 16:9, 9:16 portrait, 1:1 square, 4:5 feed. The layout reflows; portrait is not a crop |
 | **Video export** | MP4 (H.264) or WebM (VP9), plus a WAV stem of the score |
-| **Seeded score** | Seven moods, six timbre bands. The seed picks the instruments, tempo and key, so two shows in the same mood sound different — and the same show sounds the same every time |
+| **Seeded score** | Seven moods, including Silent, and six timbre bands. The seed picks the instruments, tempo and key, so two shows in the same mood sound different — and the same show sounds the same every time |
 
 ## Output formats
 
