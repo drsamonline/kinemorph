@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "mediabunny": "^1.65.2",
+    "mediabunny": "^1.66.0",
     "@kinemorph/core": "*",
     "@kinemorph/renderer": "*"
   }
