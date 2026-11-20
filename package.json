@@ -18,11 +18,11 @@
     "verify:export": "node tools/verify-export.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "puppeteer-core": "^24.43.1",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "mediabunny": "^1.65.2"
+    "mediabunny": "^1.66.0"
   }
 }
